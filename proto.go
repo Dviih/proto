@@ -24,3 +24,7 @@ import (
 	"syscall/js"
 )
 
+type String interface {
+	String() string
+}
+
