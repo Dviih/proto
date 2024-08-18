@@ -40,3 +40,15 @@ func (subscription *Subscription) Handler(handler func(interface{}, js.Value)) {
 	}
 }
 
+func New(name string) *Subscription {
+	value := js.Global().Get("document").Call("getElementById", name)
+	if value.IsNull() {
+		panic("unable to subscribe")
+	}
+
+	return &Subscription{
+		name:    name,
+		channel: make(chan interface{}),
+		value:   value,
+	}
+}
