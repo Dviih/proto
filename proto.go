@@ -28,3 +28,21 @@ type String interface {
 	String() string
 }
 
+func IsValue(v interface{}) bool {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	defer func() {
+		if recover() != nil {
+			wg.Done()
+		}
+	}()
+
+	v = js.ValueOf(v)
+	if v != nil {
+		return true
+	}
+
+	wg.Wait()
+	return false
+}
