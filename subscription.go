@@ -27,3 +27,7 @@ type Subscription struct {
 	value   js.Value
 }
 
+func (subscription *Subscription) Channel() chan<- interface{} {
+	return subscription.channel
+}
+
