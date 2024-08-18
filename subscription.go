@@ -19,3 +19,11 @@
 
 package proto
 
+import "syscall/js"
+
+type Subscription struct {
+	name    string
+	channel chan interface{}
+	value   js.Value
+}
+
