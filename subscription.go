@@ -31,3 +31,12 @@ func (subscription *Subscription) Channel() chan<- interface{} {
 	return subscription.channel
 }
 
+func (subscription *Subscription) Handler(handler func(interface{}, js.Value)) {
+	for {
+		select {
+		case data := <-subscription.channel:
+			handler(data, subscription.value)
+		}
+	}
+}
+
