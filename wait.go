@@ -18,3 +18,17 @@
  */
 
 package proto
+
+import (
+	"time"
+)
+
+var retry = time.Second / 20
+
+func Retry() time.Duration {
+	return retry
+}
+
+func SetRetry(duration time.Duration) {
+	retry = duration
+}
