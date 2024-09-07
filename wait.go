@@ -20,6 +20,7 @@
 package proto
 
 import (
+	"syscall/js"
 	"time"
 )
 
@@ -31,4 +32,14 @@ func Retry() time.Duration {
 
 func SetRetry(duration time.Duration) {
 	retry = duration
+}
+
+func Wait(fn func() js.Value) js.Value {
+	for {
+		if v := fn(); !v.IsNull() {
+			return v
+		}
+
+		time.Sleep(retry)
+	}
 }
