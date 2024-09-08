@@ -71,3 +71,7 @@ func (render *Render) Root() *Element {
 	return render.root
 }
 
+func (render *Render) Execute(name string) error {
+	return render.template.ExecuteTemplate(render.Root(), name, render.data)
+}
+
