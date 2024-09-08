@@ -63,3 +63,11 @@ func (render *Render) Element(id string) *Element {
 	}
 }
 
+func (render *Render) Root() *Element {
+	if render.root == nil {
+		render.root = render.Element("root")
+	}
+
+	return render.root
+}
+
