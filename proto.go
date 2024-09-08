@@ -1,5 +1,5 @@
 /*
- *     Proto is a minimal tool for real time HTML rendering.
+ *     An easy way to provide conectivity across multiple servers.
  *     Copyright (C) 2024  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -23,10 +23,6 @@ import (
 	"sync"
 	"syscall/js"
 )
-
-type String interface {
-	String() string
-}
 
 func IsValue(v interface{}) bool {
 	var wg sync.WaitGroup
