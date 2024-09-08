@@ -39,3 +39,32 @@ func (element *Element) Read(p []byte) (n int, err error) {
 	return strings.NewReader(element.value.Get("innerHTML").String()).Read(p)
 }
 
+func (element *Element) Write(p []byte) (n int, err error) {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	innerHTML := element.value.Get("innerHTML").String()
+
+	if p[len(p)-1] == ' ' {
+		p = append(bytes.TrimSpace(p), ' ')
+
+		element.buffer.Write(p)
+		return len(p), nil
+	} else {
+		p = bytes.TrimSpace(p)
+
+		if p[len(p)-1] != '>' {
+			element.buffer.Write(p)
+			return len(p), nil
+		}
+	}
+
+	if element.buffer.Len() != 0 {
+		innerHTML += element.buffer.String()
+		element.buffer.Reset()
+	}
+
+	element.value.Set("innerHTML", innerHTML+string(p))
+	return len(p), nil
+}
+
