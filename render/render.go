@@ -42,3 +42,10 @@ func (render *Render) Add(key string, value interface{}) {
 	render.data[key] = value
 }
 
+func (render *Render) Remove(key string) {
+	defer render.m.Unlock()
+	render.m.Lock()
+
+	delete(render.data, key)
+}
+
