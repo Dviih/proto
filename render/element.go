@@ -68,3 +68,10 @@ func (element *Element) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+func (element *Element) Clear() {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	element.value.Set("innerHTML", "")
+}
+
