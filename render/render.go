@@ -89,3 +89,15 @@ func (render *Render) Create(name string) (*Element, error) {
 	return element, nil
 }
 
+func New(fs embed.FS, patterns ...string) (*Render, error) {
+	t, err := template.ParseFS(fs, patterns...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Render{
+		template: t,
+		m:        sync.Mutex{},
+		data:     make(map[string]interface{}),
+	}, nil
+}
