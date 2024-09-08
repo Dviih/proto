@@ -49,3 +49,17 @@ func (render *Render) Remove(key string) {
 	delete(render.data, key)
 }
 
+func (render *Render) Element(id string) *Element {
+	defer render.m.Unlock()
+	render.m.Lock()
+
+	value := proto.Wait(func() js.Value {
+		return proto.Document().Call("getElementById", id)
+	})
+
+	return &Element{
+		m:     sync.Mutex{},
+		value: value,
+	}
+}
+
