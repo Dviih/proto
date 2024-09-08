@@ -19,26 +19,18 @@
 
 package proto
 
-import (
-	"sync"
-	"syscall/js"
+import "syscall/js"
+
+var (
+	document js.Value
 )
 
-func IsValue(v interface{}) bool {
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	defer func() {
-		if recover() != nil {
-			wg.Done()
-		}
-	}()
-
-	v = js.ValueOf(v)
-	if v != nil {
-		return true
+func Document() js.Value {
+	if document.IsUndefined() {
+		document = Wait(func() js.Value {
+			return js.Global().Get("document")
+		})
 	}
 
-	wg.Wait()
-	return false
+	return document
 }

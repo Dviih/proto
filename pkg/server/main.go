@@ -1,5 +1,5 @@
 /*
- *     Proto is a minimal tool for real time HTML rendering.
+ *     An easy way to provide conectivity across multiple servers.
  *     Copyright (C) 2024  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -17,38 +17,35 @@
  *
  */
 
-package proto
+package main
 
-import "syscall/js"
+import (
+	"embed"
+	"flag"
+	"net/http"
+)
 
-type Subscription struct {
-	name    string
-	channel chan interface{}
-	value   js.Value
-}
+var (
+	address     string
+	certificate string
+	key         string
+)
 
-func (subscription *Subscription) Channel() chan<- interface{} {
-	return subscription.channel
-}
+//go:embed public
+var embedded embed.FS
 
-func (subscription *Subscription) Handler(handler func(interface{}, js.Value)) {
-	for {
-		select {
-		case data := <-subscription.channel:
-			handler(data, subscription.value)
-		}
+func main() {
+	flag.StringVar(&address, "address", ":3000", "The address to listen on")
+	flag.StringVar(&certificate, "certificate", "", "Path to a TLS certificate file")
+	flag.StringVar(&key, "key", "", "Path to a TLS key file")
+
+	flag.Parse()
+
+	handler := http.FileServer(http.FS(embedded))
+
+	if len(certificate) != 0 && len(key) != 0 {
+		panic(http.ListenAndServeTLS(address, certificate, key, handler))
 	}
-}
 
-func New(name string) *Subscription {
-	value := js.Global().Get("document").Call("getElementById", name)
-	if value.IsNull() {
-		panic("unable to subscribe")
-	}
-
-	return &Subscription{
-		name:    name,
-		channel: make(chan interface{}),
-		value:   value,
-	}
+	panic(http.ListenAndServe(address, handler))
 }
