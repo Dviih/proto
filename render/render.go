@@ -35,3 +35,10 @@ type Render struct {
 	data map[string]interface{}
 }
 
+func (render *Render) Add(key string, value interface{}) {
+	defer render.m.Unlock()
+	render.m.Lock()
+
+	render.data[key] = value
+}
+
