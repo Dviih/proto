@@ -26,3 +26,9 @@ import (
 	"syscall/js"
 )
 
+type Element struct {
+	m      sync.Mutex
+	value  js.Value
+	buffer bytes.Buffer
+}
+
