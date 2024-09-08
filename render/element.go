@@ -32,3 +32,10 @@ type Element struct {
 	buffer bytes.Buffer
 }
 
+func (element *Element) Read(p []byte) (n int, err error) {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	return strings.NewReader(element.value.Get("innerHTML").String()).Read(p)
+}
+
