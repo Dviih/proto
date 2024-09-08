@@ -75,3 +75,10 @@ func (element *Element) Clear() {
 	element.value.Set("innerHTML", "")
 }
 
+func (element *Element) Set(name, value string) {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	element.value.Call("setAttribute", name, value)
+}
+
