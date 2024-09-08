@@ -27,3 +27,11 @@ import (
 	"syscall/js"
 )
 
+type Render struct {
+	root     *Element
+	template *template.Template
+
+	m    sync.Mutex
+	data map[string]interface{}
+}
+
