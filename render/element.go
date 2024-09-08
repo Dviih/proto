@@ -89,3 +89,10 @@ func (element *Element) Remove(name string) {
 	element.value.Call("removeAttribute", name)
 }
 
+func (element *Element) Replace(new *Element) {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	element.value.Call("replaceWith", new.value)
+}
+
