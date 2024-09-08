@@ -82,3 +82,10 @@ func (element *Element) Set(name, value string) {
 	element.value.Call("setAttribute", name, value)
 }
 
+func (element *Element) Remove(name string) {
+	defer element.m.Unlock()
+	element.m.Lock()
+
+	element.value.Call("removeAttribute", name)
+}
+
