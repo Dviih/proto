@@ -75,3 +75,17 @@ func (render *Render) Execute(name string) error {
 	return render.template.ExecuteTemplate(render.Root(), name, render.data)
 }
 
+func (render *Render) Create(name string) (*Element, error) {
+	element := &Element{
+		m:     sync.Mutex{},
+		value: proto.Document().Call("createElement", "create"),
+	}
+
+	if err := render.template.ExecuteTemplate(element, name, render.data); err != nil {
+		return nil, err
+	}
+
+	element.value = element.Value().Get("children").Index(0)
+	return element, nil
+}
+
