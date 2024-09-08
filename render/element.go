@@ -96,3 +96,6 @@ func (element *Element) Replace(new *Element) {
 	element.value.Call("replaceWith", new.value)
 }
 
+func (element *Element) Value() js.Value {
+	return element.value
+}
