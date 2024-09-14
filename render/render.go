@@ -120,9 +120,14 @@ func New(fs embed.FS, patterns ...string) (*Render, error) {
 		return nil, err
 	}
 
-	return &Render{
+	render := &Render{
 		template: t,
 		m:        sync.Mutex{},
 		data:     make(map[string]interface{}),
-	}, nil
+		events:   sync.Map{},
+		c:        make(chan bool),
+	}
+
+	go render.hook()
+	return render, nil
 }
