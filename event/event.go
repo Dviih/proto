@@ -28,3 +28,16 @@ import (
 	"syscall/js"
 )
 
+type Event struct {
+	id    string
+	value js.Value
+
+	conditions sync.Map
+	events     sync.Map
+
+	running atomic.Bool
+	c       chan bool
+
+	attached bool
+}
+
