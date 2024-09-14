@@ -80,3 +80,11 @@ func (event *Event) Add(attribute string, value js.Value) {
 	event.events.Store(attribute, value)
 }
 
+func (event *Event) Remove(attribute string) {
+	if event.attached {
+		panic(isAttached)
+	}
+
+	event.events.Delete(attribute)
+}
+
