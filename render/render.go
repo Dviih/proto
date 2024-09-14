@@ -102,6 +102,18 @@ func (render *Render) Create(name string) (*Element, error) {
 	return element, nil
 }
 
+func (render *Render) hook() {
+	for {
+		select {
+		case <-render.c:
+			render.events.Range(func(_, e interface{}) bool {
+				e.(*event.Event).Run()
+				return true
+			})
+		}
+	}
+}
+
 func New(fs embed.FS, patterns ...string) (*Render, error) {
 	t, err := template.ParseFS(fs, patterns...)
 	if err != nil {
