@@ -128,3 +128,13 @@ func (event *Event) forceValue() {
 	event.value = proto.Document().Call("getElementById", event.id)
 }
 
+func New(id string, c chan bool) *Event {
+	return &Event{
+		id:         id,
+		conditions: sync.Map{},
+		events:     sync.Map{},
+		running:    atomic.Bool{},
+		c:          c,
+	}
+}
+
