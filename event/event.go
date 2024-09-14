@@ -96,3 +96,15 @@ func (event *Event) Condition(condition, expected string) {
 	event.conditions.Store(html.EscapeString(condition), html.EscapeString(expected))
 }
 
+func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
+	event.events.Store(name, js.FuncOf(fn))
+
+	if event.c != nil {
+		event.c <- true
+	}
+
+	if event.attached {
+		event.Run()
+	}
+}
+
