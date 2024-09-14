@@ -108,3 +108,7 @@ func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interfa
 	}
 }
 
+func (event *Event) Unsubscribe(name string) {
+	event.events.Delete(name)
+}
+
