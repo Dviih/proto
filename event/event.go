@@ -88,3 +88,11 @@ func (event *Event) Remove(attribute string) {
 	event.events.Delete(attribute)
 }
 
+func (event *Event) Condition(condition, expected string) {
+	if event.attached {
+		panic(isAttached)
+	}
+
+	event.conditions.Store(html.EscapeString(condition), html.EscapeString(expected))
+}
+
