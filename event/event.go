@@ -116,3 +116,11 @@ func (event *Event) Running() bool {
 	return event.running.Load()
 }
 
+func (event *Event) Value() js.Value {
+	if event.value.IsUndefined() {
+		event.forceValue()
+	}
+
+	return event.value
+}
+
