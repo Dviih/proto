@@ -112,3 +112,7 @@ func (event *Event) Unsubscribe(name string) {
 	event.events.Delete(name)
 }
 
+func (event *Event) Running() bool {
+	return event.running.Load()
+}
+
