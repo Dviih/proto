@@ -41,3 +41,5 @@ type Event struct {
 	attached bool
 }
 
+var isAttached = errors.New("event is attached")
+
