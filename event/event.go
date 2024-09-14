@@ -18,3 +18,13 @@
  */
 
 package event
+
+import (
+	"errors"
+	"github.com/Dviih/proto"
+	"html"
+	"sync"
+	"sync/atomic"
+	"syscall/js"
+)
+
