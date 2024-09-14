@@ -124,3 +124,7 @@ func (event *Event) Value() js.Value {
 	return event.value
 }
 
+func (event *Event) forceValue() {
+	event.value = proto.Document().Call("getElementById", event.id)
+}
+
