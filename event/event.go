@@ -43,3 +43,14 @@ type Event struct {
 
 var isAttached = errors.New("event is attached")
 
+func (event *Event) Match() bool {
+	matched := true
+
+	event.conditions.Range(func(condition, expected interface{}) bool {
+		matched = !proto.Document().Call("querySelector", "["+condition.(string)+"="+expected.(string)+"]").IsNull()
+		return matched
+	})
+
+	return matched
+}
+
