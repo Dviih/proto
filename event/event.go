@@ -72,3 +72,11 @@ func (event *Event) Run() {
 	event.running.Store(true)
 }
 
+func (event *Event) Add(attribute string, value js.Value) {
+	if event.attached {
+		panic(isAttached)
+	}
+
+	event.events.Store(attribute, value)
+}
+
