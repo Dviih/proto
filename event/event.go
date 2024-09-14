@@ -138,3 +138,14 @@ func New(id string, c chan bool) *Event {
 	}
 }
 
+func Attached(value js.Value) *Event {
+	event := &Event{
+		value:    value,
+		events:   sync.Map{},
+		running:  atomic.Bool{},
+		attached: true,
+	}
+
+	event.running.Store(true)
+	return event
+}
