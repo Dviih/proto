@@ -1,5 +1,5 @@
 /*
- *     An easy way to provide conectivity across multiple servers.
+ *     Proto is a minimal tool for real time HTML rendering.
  *     Copyright (C) 2024  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,10 @@
 package render
 
 import (
+	"bytes"
 	"embed"
 	"github.com/Dviih/proto"
+	"github.com/Dviih/proto/event"
 	"html/template"
 	"sync"
 	"syscall/js"
@@ -33,6 +35,10 @@ type Render struct {
 
 	m    sync.Mutex
 	data map[string]interface{}
+
+	events sync.Map
+	c      chan bool
+
 }
 
 func (render *Render) Add(key string, value interface{}) {
