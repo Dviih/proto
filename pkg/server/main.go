@@ -1,5 +1,5 @@
 /*
- *     An easy way to provide conectivity across multiple servers.
+ *     Proto is a minimal tool for real time HTML rendering.
  *     Copyright (C) 2024  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify

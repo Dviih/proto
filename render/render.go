@@ -1,5 +1,5 @@
 /*
- *     An easy way to provide conectivity across multiple servers.
+ *     Proto is a minimal tool for real time HTML rendering.
  *     Copyright (C) 2024  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -20,8 +20,10 @@
 package render
 
 import (
+	"bytes"
 	"embed"
 	"github.com/Dviih/proto"
+	"github.com/Dviih/proto/event"
 	"html/template"
 	"sync"
 	"syscall/js"
@@ -33,6 +35,10 @@ type Render struct {
 
 	m    sync.Mutex
 	data map[string]interface{}
+
+	events sync.Map
+	c      chan bool
+
 }
 
 func (render *Render) Add(key string, value interface{}) {
@@ -71,6 +77,13 @@ func (render *Render) Root() *Element {
 	return render.root
 }
 
+func (render *Render) Event(id string) *event.Event {
+	e := event.New(id, render.c)
+
+	render.events.Store(id, e)
+	return e
+}
+
 func (render *Render) Execute(name string) error {
 	return render.template.ExecuteTemplate(render.Root(), name, render.data)
 }
@@ -89,15 +102,32 @@ func (render *Render) Create(name string) (*Element, error) {
 	return element, nil
 }
 
+func (render *Render) hook() {
+	for {
+		select {
+		case <-render.c:
+			render.events.Range(func(_, e interface{}) bool {
+				e.(*event.Event).Run()
+				return true
+			})
+		}
+	}
+}
+
 func New(fs embed.FS, patterns ...string) (*Render, error) {
 	t, err := template.ParseFS(fs, patterns...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Render{
+	render := &Render{
 		template: t,
 		m:        sync.Mutex{},
 		data:     make(map[string]interface{}),
-	}, nil
+		events:   sync.Map{},
+		c:        make(chan bool),
+	}
+
+	go render.hook()
+	return render, nil
 }
