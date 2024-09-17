@@ -72,22 +72,6 @@ func (event *Event) Run() {
 	event.running.Store(true)
 }
 
-func (event *Event) Add(attribute string, value js.Value) {
-	if event.attached {
-		panic(isAttached)
-	}
-
-	event.events.Store(attribute, value)
-}
-
-func (event *Event) Remove(attribute string) {
-	if event.attached {
-		panic(isAttached)
-	}
-
-	event.events.Delete(attribute)
-}
-
 func (event *Event) Condition(condition, expected string) {
 	if event.attached {
 		panic(isAttached)
