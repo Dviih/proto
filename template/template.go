@@ -19,3 +19,16 @@
 
 package template
 
+import (
+	"errors"
+	"github.com/Dviih/Map"
+	"io"
+	"io/fs"
+	"reflect"
+)
+
+type Template struct {
+	templates *Map.Map[string, []byte]
+	data      *Map.Map[string, interface{}]
+}
+
