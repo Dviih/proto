@@ -51,3 +51,9 @@ func (template *Template) Set(name string, v interface{}) {
 	template.data.Store(name, v)
 }
 
+func (template *Template) Join(m map[string]interface{}) {
+	for k, v := range m {
+		template.data.Store(k, v)
+	}
+}
+
