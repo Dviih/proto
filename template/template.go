@@ -75,3 +75,86 @@ func (template *Template) Execute(name string) ([]byte, error) {
 	return template.execute(data, template.data)
 }
 
+func (template *Template) execute(data []byte, v interface{}) ([]byte, error) {
+	token := NewToken(data, v)
+
+	for {
+		node := token.Next()
+
+		switch node {
+		case "":
+			return TrimSpaceRight(token.ret), nil
+		case "$template":
+			info := token.Info()
+
+			t2, err := template.templates.Load(info)
+			if err != nil {
+				return nil, err
+			}
+
+			data, err := template.execute(t2, template.data)
+			if err != nil {
+				return nil, err
+			}
+
+			token.add(data)
+		case "$range":
+			info := token.Info()
+
+			k := 0
+			for ; k < len(info); k++ {
+				if info[k] == ':' {
+					info = info[:k] + info[k+1:]
+					break
+				}
+			}
+
+			if k == len(info) {
+				k = 0
+			}
+
+			t := token.End()
+
+			m := template.Get(info[k:])
+			if m == nil {
+				return nil, errors.New("nil")
+			}
+
+			value := reflect.ValueOf(m)
+
+			switch value.Kind() {
+			case reflect.Array, reflect.Slice:
+				for i := 0; i < value.Len(); i++ {
+					var v interface{}
+
+					if k != 0 {
+						v = Map.New[string, interface{}]()
+						v.(*Map.Map[string, interface{}]).Store(info[:k], value.Index(i).Interface())
+					} else {
+						v = value.Index(i).Interface()
+					}
+
+					data, err := template.execute(t, v)
+					if err != nil {
+						return nil, err
+					}
+
+					token.add(data)
+				}
+			default:
+				return nil, errors.New("invalid range")
+			}
+		default:
+			s, i := Trim(node[1:])
+			token.i -= i
+
+			if s == "" {
+				token.add(v)
+				continue
+			}
+
+			token.add(token.get(s))
+		}
+	}
+}
+
