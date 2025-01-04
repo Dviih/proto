@@ -66,3 +66,12 @@ func (template *Template) Get(name string) interface{} {
 	return v
 }
 
+func (template *Template) Execute(name string) ([]byte, error) {
+	data, err := template.templates.Load(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return template.execute(data, template.data)
+}
+
