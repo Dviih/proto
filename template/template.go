@@ -165,3 +165,30 @@ func New() *Template {
 	}
 }
 
+func FromFS(f fs.FS) (*Template, error) {
+	t := New()
+
+	if err := fs.WalkDir(f, ".", func(path string, entry fs.DirEntry, err error) error {
+		// .html is at least 5. or if it isn't
+		if len(path) < 5 || path[len(path)-5:] != ".html" {
+			return nil
+		}
+
+		file, err := f.Open(path)
+		if err != nil {
+			return err
+		}
+
+		data, err := io.ReadAll(file)
+		if err != nil {
+			return err
+		}
+
+		t.Add(path[:len(path)-5], data)
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
