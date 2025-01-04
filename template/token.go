@@ -132,3 +132,32 @@ func (token *Token) add(v interface{}) {
 	}
 }
 
+func (token *Token) get(name string) interface{} {
+	switch data := token.v.(type) {
+	case *Map.Map[string, interface{}]:
+		v, err := data.Load(name)
+		if err != nil {
+			return nil
+		}
+
+		return v
+	default:
+		value := reflect.ValueOf(data)
+		for value.Kind() == reflect.Pointer {
+			value = value.Elem()
+		}
+
+		switch value.Kind() {
+		case reflect.Struct:
+			field := value.FieldByName(name)
+			if field.Kind() == reflect.Invalid || field.IsZero() {
+				return nil
+			}
+
+			return field.Interface()
+		default:
+			return nil
+		}
+	}
+}
+
