@@ -168,3 +168,27 @@ func NewToken(data []byte, v interface{}) *Token {
 	}
 }
 
+func TrimSpaceLeft[T string | []byte](t T) T {
+	data := string(t)
+
+	for i, b := range data {
+		if !unicode.IsSpace(b) {
+			return T(data[i:])
+		}
+	}
+
+	return t
+}
+
+func TrimSpaceRight[T string | []byte](t T) T {
+	data := string(t)
+
+	for i := len(data) - 1; i > 0; i-- {
+		if !unicode.IsSpace(rune(data[i])) {
+			return T(data[:i+1])
+		}
+	}
+
+	return t
+}
+
