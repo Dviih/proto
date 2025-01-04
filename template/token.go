@@ -192,3 +192,41 @@ func TrimSpaceRight[T string | []byte](t T) T {
 	return t
 }
 
+func TrimSingle[T string | []byte](t T) T {
+	var ls, rs, ln, rn bool
+
+	switch t[0] {
+	case ' ':
+		ls = true
+	case '\n':
+		ln = true
+	}
+
+	switch t[len(t)-1] {
+	case ' ':
+		rs = true
+	case '\n':
+		rn = true
+	}
+
+	t = TrimSpaceRight(TrimSpaceLeft(t))
+
+	if ls {
+		t = T(" " + string(t))
+	}
+
+	if rs {
+		t = T(string(t) + " ")
+	}
+
+	if ln {
+		t = T("\n" + string(t))
+	}
+
+	if rn {
+		t = T(string(t) + "\n")
+	}
+
+	return t
+}
+
