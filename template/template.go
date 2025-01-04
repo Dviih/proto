@@ -158,3 +158,10 @@ func (template *Template) execute(data []byte, v interface{}) ([]byte, error) {
 	}
 }
 
+func New() *Template {
+	return &Template{
+		templates: Map.New[string, []byte](),
+		data:      Map.New[string, interface{}](),
+	}
+}
+
