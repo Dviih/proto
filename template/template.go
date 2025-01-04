@@ -57,3 +57,12 @@ func (template *Template) Join(m map[string]interface{}) {
 	}
 }
 
+func (template *Template) Get(name string) interface{} {
+	v, err := template.data.Load(name)
+	if err != nil {
+		return nil
+	}
+
+	return v
+}
+
