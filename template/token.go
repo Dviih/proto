@@ -161,3 +161,10 @@ func (token *Token) get(name string) interface{} {
 	}
 }
 
+func NewToken(data []byte, v interface{}) *Token {
+	return &Token{
+		data: data,
+		v:    v,
+	}
+}
+
