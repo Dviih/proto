@@ -135,12 +135,23 @@ func (token *Token) add(v interface{}) {
 func (token *Token) get(name string) interface{} {
 	switch data := token.v.(type) {
 	case *Map.Map[string, interface{}]:
-		v, err := data.Load(name)
+		fields := token.getFields(name)
+
+		if len(fields) < 2 {
+			v, err := data.Load(name)
+			if err != nil {
+				return nil
+			}
+
+			return v
+		}
+
+		v, err := data.Load(fields[0])
 		if err != nil {
 			return nil
 		}
 
-		return v
+		return token.getStruct(v, fields)
 	default:
 		value := reflect.ValueOf(data)
 		for value.Kind() == reflect.Pointer {
@@ -149,14 +160,14 @@ func (token *Token) get(name string) interface{} {
 
 		switch value.Kind() {
 		case reflect.Struct:
-			field := value.FieldByName(name)
-			if field.Kind() == reflect.Invalid || field.IsZero() {
-				return nil
-			}
-
-			return field.Interface()
+			return token.getStruct(data, token.getFields(name))
 		default:
-			return nil
+		}
+
+		return data
+	}
+}
+
 func (token *Token) getFields(name string) []string {
 	var fields []string
 
