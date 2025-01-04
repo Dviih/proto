@@ -36,3 +36,42 @@ type Token struct {
 	ret []byte
 }
 
+// Next loops and returns the next $.
+func (token *Token) Next() string {
+	for ; token.i < len(token.data); token.i++ {
+		switch token.data[token.i] {
+		case ' ', '\n', '<', '>':
+			if !token.found {
+				if !token.noappend {
+					token.add(token.data[token.i])
+				}
+				continue
+			}
+
+			token.sign = false
+			token.found = false
+			return string(token.data[token.j:token.i])
+		case '$':
+			if token.sign {
+				token.sign = false
+				token.found = false
+				if !token.noappend {
+					token.add('$')
+				}
+				continue
+			}
+
+			token.sign = true
+			token.found = true
+			token.j = token.i
+			continue
+		default:
+			if !token.found && !token.noappend {
+				token.add(token.data[token.i])
+			}
+		}
+	}
+
+	return ""
+}
+
