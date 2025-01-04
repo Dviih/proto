@@ -230,3 +230,16 @@ func TrimSingle[T string | []byte](t T) T {
 	return t
 }
 
+func Trim(s string) (string, int) {
+	i := len(s) - 1
+	for ; i >= 0; i-- {
+		switch s[i] {
+		case '"', '\'', ' ':
+			continue
+		default:
+			return s[:i+1], len(s) - i - 1
+		}
+	}
+
+	return s[:i+1], len(s) - i - 1
+}
