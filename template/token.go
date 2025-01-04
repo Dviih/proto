@@ -157,8 +157,21 @@ func (token *Token) get(name string) interface{} {
 			return field.Interface()
 		default:
 			return nil
+func (token *Token) getFields(name string) []string {
+	var fields []string
+
+	j := 0
+
+	for i := 0; i < len(name); i++ {
+		if name[i] == '.' {
+			fields = append(fields, name[j:i])
+			j = i + 1
 		}
 	}
+
+	return append(fields, name[j:])
+}
+
 func (token *Token) getStruct(v interface{}, fields []string) interface{} {
 	value := reflect.ValueOf(v)
 
