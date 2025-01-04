@@ -32,3 +32,7 @@ type Template struct {
 	data      *Map.Map[string, interface{}]
 }
 
+func (template *Template) Add(name string, data []byte) {
+	template.templates.Store(name, data)
+}
+
