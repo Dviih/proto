@@ -47,3 +47,7 @@ func (template *Template) Templates() []string {
 	return templates
 }
 
+func (template *Template) Set(name string, v interface{}) {
+	template.data.Store(name, v)
+}
+
