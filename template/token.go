@@ -115,3 +115,20 @@ func (token *Token) End() []byte {
 	}
 }
 
+func (token *Token) add(v interface{}) {
+	switch v := v.(type) {
+	case []byte:
+		token.ret = append(token.ret, TrimSingle(v)...)
+	case string:
+		token.ret = append(token.ret, TrimSingle(v)...)
+	case byte:
+		token.ret = append(token.ret, v)
+	case rune:
+		token.ret = append(token.ret, string(v)...)
+	case nil:
+		return
+	default:
+		token.ret = append(token.ret, TrimSingle(fmt.Sprintf("%v", v))...)
+	}
+}
+
