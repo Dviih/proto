@@ -159,6 +159,25 @@ func (token *Token) get(name string) interface{} {
 			return nil
 		}
 	}
+func (token *Token) getStruct(v interface{}, fields []string) interface{} {
+	value := reflect.ValueOf(v)
+
+	for _, fname := range fields[1:] {
+		for value.Kind() == reflect.Pointer {
+			value = value.Elem()
+		}
+
+		value = value.FieldByName(fname)
+		if value.Kind() != reflect.Struct {
+			break
+		}
+	}
+
+	if value.Kind() == reflect.Invalid || value.IsZero() {
+		return nil
+	}
+
+	return value.Interface()
 }
 
 func NewToken(data []byte, v interface{}) *Token {
