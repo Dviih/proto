@@ -75,3 +75,24 @@ func (token *Token) Next() string {
 	return ""
 }
 
+// Info returns information associated with Next after its name.
+func (token *Token) Info() string {
+	k := token.i
+	b := false
+
+	for ; token.i < len(token.data); token.i++ {
+		switch token.data[token.i] {
+		case '\n', '<', '>':
+			return string(token.data[k:token.i])
+		default:
+			if !b {
+				k++
+			}
+
+			b = true
+		}
+	}
+
+	return string(TrimSingle(token.data[k:]))
+}
+
