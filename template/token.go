@@ -19,3 +19,20 @@
 
 package template
 
+import (
+	"fmt"
+	"github.com/Dviih/Map"
+	"reflect"
+	"unicode"
+)
+
+type Token struct {
+	data                  []byte
+	i, j                  int
+	found, noappend, sign bool
+
+	v interface{}
+
+	ret []byte
+}
+
