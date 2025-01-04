@@ -96,3 +96,22 @@ func (token *Token) Info() string {
 	return string(TrimSingle(token.data[k:]))
 }
 
+// End gets everything until finds `$end` tag.
+func (token *Token) End() []byte {
+	k := token.i
+	token.noappend = true
+
+	for {
+		node := token.Next()
+
+		switch node {
+		case "":
+			token.noappend = false
+			return nil
+		case "$end":
+			token.noappend = false
+			return TrimSingle(token.data[k:token.i])
+		}
+	}
+}
+
