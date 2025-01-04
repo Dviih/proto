@@ -36,3 +36,14 @@ func (template *Template) Add(name string, data []byte) {
 	template.templates.Store(name, data)
 }
 
+func (template *Template) Templates() []string {
+	var templates []string
+
+	template.templates.Range(func(template string, _ []byte) bool {
+		templates = append(templates, template)
+		return true
+	})
+
+	return templates
+}
+
