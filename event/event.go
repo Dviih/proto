@@ -48,8 +48,11 @@ func (event *Event) Running() bool {
 
 func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
 	_, err := event.events.LoadOrStore(name, js.FuncOf(fn))
+	if err != nil {
+		event.Unsubscribe(name)
 	}
 
+	event.value.Value().Call("addEventListener", name, fn)
 }
 
 func (event *Event) Unsubscribe(name string) {
