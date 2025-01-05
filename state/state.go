@@ -24,3 +24,11 @@ import (
 	"sync/atomic"
 )
 
+type State[T interface{}] struct {
+	ctx context.Context
+	c   chan string
+
+	id string
+	m  atomic.Pointer[T]
+}
+
