@@ -20,125 +20,67 @@
 package event
 
 import (
-	"errors"
+	"context"
+	"github.com/Dviih/Map"
 	"github.com/Dviih/proto"
-	"html"
-	"sync"
 	"sync/atomic"
 	"syscall/js"
 )
 
 type Event struct {
-	id    string
-	value js.Value
-
-	conditions sync.Map
-	events     sync.Map
-
+	ctx     context.Context
+	value   proto.Value
+	events  *Map.Map[string, js.Func]
 	running atomic.Bool
-	c       chan bool
-
-	attached bool
 }
 
-var isAttached = errors.New("event is attached")
+var (
+	Global = Attached(context.Background(), &global{})
+)
 
-func (event *Event) Match() bool {
-	matched := true
-
-	event.conditions.Range(func(condition, expected interface{}) bool {
-		matched = !proto.Document().Call("querySelector", "["+condition.(string)+"="+expected.(string)+"]").IsNull()
-		return matched
-	})
-
-	return matched
-}
-
-func (event *Event) Run() {
-	if !event.attached {
-		event.forceValue()
-
-		if !event.Match() {
-			event.running.Store(false)
-			return
-		}
-	}
-
-	event.events.Range(func(name, fn any) bool {
-		event.Value().Call("addEventListener", name, fn)
-		return true
-	})
-
-	event.running.Store(true)
-}
-
-func (event *Event) Condition(condition, expected string) {
-	if event.attached {
-		panic(isAttached)
-	}
-
-	event.conditions.Store(html.EscapeString(condition), html.EscapeString(expected))
-}
-
-func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
-	event.events.Store(name, js.FuncOf(fn))
-
-	if event.c != nil {
-		event.c <- true
-	}
-
-	if event.attached {
-		event.Run()
-	}
-}
-
-func (event *Event) Unsubscribe(name string) {
-	if !event.Value().IsNull() {
-		event.Value().Call("removeEventListener", name)
-	}
-
-	fn, ok := event.events.LoadAndDelete(name)
-	if !ok {
-		return
-	}
-
-	fn.(js.Func).Release()
+func (event *Event) Id() string {
+	return event.value.Name()
 }
 
 func (event *Event) Running() bool {
 	return event.running.Load()
 }
 
-func (event *Event) Value() js.Value {
-	if event.value.IsUndefined() {
-		event.forceValue()
+func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
+	_, err := event.events.LoadOrStore(name, js.FuncOf(fn))
+	if err != nil {
+		event.Unsubscribe(name)
 	}
 
-	return event.value
+	event.value.Value().Call("addEventListener", name, fn)
 }
 
-func (event *Event) forceValue() {
-	event.value = proto.Document().Call("getElementById", event.id)
-}
+func (event *Event) Unsubscribe(name string) {
+	event.value.Value().Call("removeEventListener", name, nil)
 
-func New(id string, c chan bool) *Event {
-	return &Event{
-		id:         id,
-		conditions: sync.Map{},
-		events:     sync.Map{},
-		running:    atomic.Bool{},
-		c:          c,
+	fn, err := event.events.LoadAndDelete(name)
+	if err != nil {
+		return
 	}
+
+	fn.Release()
 }
 
-func Attached(value js.Value) *Event {
+func Attached(ctx context.Context, value proto.Value) *Event {
 	event := &Event{
-		value:    value,
-		events:   sync.Map{},
-		running:  atomic.Bool{},
-		attached: true,
+		ctx:    ctx,
+		value:  value,
+		events: Map.New[string, js.Func](),
 	}
 
 	event.running.Store(true)
 	return event
+}
+
+func New(ctx context.Context, value proto.Value) *Event {
+	return &Event{
+		ctx:    ctx,
+		value:  value,
+		events: Map.New[string, js.Func](),
+	}
 }

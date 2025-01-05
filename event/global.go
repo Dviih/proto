@@ -17,33 +17,19 @@
  *
  */
 
-package proto
+package event
 
 import (
-	"net/url"
+	"github.com/Dviih/proto"
 	"syscall/js"
 )
 
-type Value interface {
-	Name() string
-	Value() js.Value
+type global struct{}
+
+func (*global) Name() string {
+	return "global"
 }
 
-func URL() *url.URL {
-	u, err := url.Parse(GDocument.Get("URL").String())
-	if err != nil {
-		panic(err)
-	}
-
-	return u
-}
-
-
-	v = js.ValueOf(v)
-	if v != nil {
-		return true
-	}
-
-	wg.Wait()
-	return false
+func (*global) Value() js.Value {
+	return proto.GGlobal
 }

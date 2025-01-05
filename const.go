@@ -22,15 +22,9 @@ package proto
 import "syscall/js"
 
 var (
-	document js.Value
+	GGlobal = js.Global()
+
+	GDocument   = GGlobal.Get("document")
+	GWindow     = GGlobal.Get("window")
+	GUint8Array = GGlobal.Get("Uint8Array")
 )
-
-func Document() js.Value {
-	if document.IsUndefined() {
-		document = Wait(func() js.Value {
-			return js.Global().Get("document")
-		})
-	}
-
-	return document
-}
