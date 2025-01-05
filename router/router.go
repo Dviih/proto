@@ -38,3 +38,12 @@ func (router *Router) Remove(route string) {
 	router.pages.Delete(route)
 }
 
+func (router *Router) Get(route string) (Handler, error) {
+	handler := router.match(route)
+	if handler != nil {
+		return handler, nil
+	}
+
+	return nil, Map.KeyNotFound
+}
+
