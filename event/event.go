@@ -77,15 +77,8 @@ func Attached(ctx context.Context, value proto.Value) *Event {
 	return event
 }
 
-func New(id string, c chan bool) *Event {
+func New(ctx context.Context, value proto.Value) *Event {
 	return &Event{
-		id:         id,
-		conditions: sync.Map{},
-		events:     sync.Map{},
-		running:    atomic.Bool{},
-		c:          c,
-	}
-}
 		ctx:    ctx,
 		value:  value,
 		events: Map.New[string, js.Func](),
