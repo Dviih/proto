@@ -56,16 +56,14 @@ func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interfa
 }
 
 func (event *Event) Unsubscribe(name string) {
-	if !event.Value().IsNull() {
-		event.Value().Call("removeEventListener", name)
-	}
+	event.value.Value().Call("removeEventListener", name, nil)
 
-	fn, ok := event.events.LoadAndDelete(name)
-	if !ok {
+	fn, err := event.events.LoadAndDelete(name)
+	if err != nil {
 		return
 	}
 
-	fn.(js.Func).Release()
+	fn.Release()
 }
 
 	}
