@@ -28,16 +28,10 @@ import (
 )
 
 type Event struct {
-	id    string
-	value js.Value
-
-	conditions sync.Map
-	events     sync.Map
-
+	ctx     context.Context
+	value   proto.Value
+	events  *Map.Map[string, js.Func]
 	running atomic.Bool
-	c       chan bool
-
-	attached bool
 }
 
 var isAttached = errors.New("event is attached")
