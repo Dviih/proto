@@ -42,6 +42,8 @@ func (event *Event) Id() string {
 	return event.value.Name()
 }
 
+func (event *Event) Running() bool {
+	return event.running.Load()
 }
 
 func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
