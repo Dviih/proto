@@ -86,15 +86,8 @@ func New(id string, c chan bool) *Event {
 		c:          c,
 	}
 }
-
-func Attached(value js.Value) *Event {
-	event := &Event{
-		value:    value,
-		events:   sync.Map{},
-		running:  atomic.Bool{},
-		attached: true,
+		ctx:    ctx,
+		value:  value,
+		events: Map.New[string, js.Func](),
 	}
-
-	event.running.Store(true)
-	return event
 }
