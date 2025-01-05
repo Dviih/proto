@@ -73,8 +73,8 @@ func (event *Event) Unsubscribe(name string) {
 	return event.value
 }
 
-func (event *Event) forceValue() {
-	event.value = proto.Document().Call("getElementById", event.id)
+	event.running.Store(true)
+	return event
 }
 
 func New(id string, c chan bool) *Event {
