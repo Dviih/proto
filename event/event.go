@@ -34,6 +34,9 @@ type Event struct {
 	running atomic.Bool
 }
 
+var (
+	Global = Attached(context.Background(), &global{})
+)
 
 func (event *Event) Match() bool {
 	matched := true
