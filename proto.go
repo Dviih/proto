@@ -37,6 +37,15 @@ type Value interface {
 			wg.Done()
 		}
 	}()
+func URL() *url.URL {
+	u, err := url.Parse(GDocument.Get("URL").String())
+	if err != nil {
+		panic(err)
+	}
+
+	return u
+}
+
 
 	v = js.ValueOf(v)
 	if v != nil {
