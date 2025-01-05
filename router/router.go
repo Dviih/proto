@@ -88,3 +88,21 @@ func (router *Router) match(name string) Handler {
 	return ret
 }
 
+func split(s string, b byte) []string {
+	var ret []string
+	j := 1
+
+	for i := 1; i < len(s); i++ {
+		if s[i] == b {
+			ret = append(ret, s[j:i])
+			j = i + 1
+		}
+	}
+
+	if j-len(s) == 0 {
+		return ret
+	}
+
+	return append(ret, s[j:])
+}
+
