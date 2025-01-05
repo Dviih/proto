@@ -41,3 +41,11 @@ func (state *State[T]) Get() T {
 	return *state.m.Load()
 }
 
+func (state *State[T]) Set(t T) {
+	if state.ctx.Err() != nil {
+		return
+	}
+
+	state.m.Store(&t)
+	state.c <- state.id
+}
