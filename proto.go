@@ -20,23 +20,15 @@
 package proto
 
 import (
-	"sync"
+	"net/url"
 	"syscall/js"
 )
 
-func IsValue(v interface{}) bool {
-	var wg sync.WaitGroup
-	wg.Add(1)
 type Value interface {
 	Name() string
 	Value() js.Value
 }
 
-	defer func() {
-		if recover() != nil {
-			wg.Done()
-		}
-	}()
 func URL() *url.URL {
 	u, err := url.Parse(GDocument.Get("URL").String())
 	if err != nil {
