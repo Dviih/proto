@@ -32,3 +32,12 @@ type State[T interface{}] struct {
 	m  atomic.Pointer[T]
 }
 
+func (state *State[T]) Get() T {
+	if state.ctx.Err() != nil {
+		var zero T
+		return zero
+	}
+
+	return *state.m.Load()
+}
+
