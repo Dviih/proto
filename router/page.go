@@ -31,3 +31,6 @@ type Page struct {
 	Query     map[string]string
 }
 
+func (page *Page) Logger() *slog.Logger {
+	return page.logger
+}
