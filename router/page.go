@@ -23,3 +23,11 @@ import (
 	"log/slog"
 )
 
+type Page struct {
+	template string
+	logger   *slog.Logger
+
+	Arguments []string
+	Query     map[string]string
+}
+
