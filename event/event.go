@@ -46,9 +46,6 @@ func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interfa
 	_, err := event.events.LoadOrStore(name, js.FuncOf(fn))
 	}
 
-	if event.attached {
-		event.Run()
-	}
 }
 
 func (event *Event) Unsubscribe(name string) {
