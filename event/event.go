@@ -38,22 +38,6 @@ var (
 	Global = Attached(context.Background(), &global{})
 )
 
-func (event *Event) Run() {
-	if !event.attached {
-		event.forceValue()
-
-		if !event.Match() {
-			event.running.Store(false)
-			return
-		}
-	}
-
-	event.events.Range(func(name, fn any) bool {
-		event.Value().Call("addEventListener", name, fn)
-		return true
-	})
-
-	event.running.Store(true)
 }
 
 func (event *Event) Condition(condition, expected string) {
