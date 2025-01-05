@@ -20,10 +20,9 @@
 package event
 
 import (
-	"errors"
+	"context"
+	"github.com/Dviih/Map"
 	"github.com/Dviih/proto"
-	"html"
-	"sync"
 	"sync/atomic"
 	"syscall/js"
 )
