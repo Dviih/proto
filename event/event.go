@@ -38,6 +38,8 @@ var (
 	Global = Attached(context.Background(), &global{})
 )
 
+func (event *Event) Id() string {
+	return event.value.Name()
 }
 
 }
