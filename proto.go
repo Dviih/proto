@@ -27,6 +27,10 @@ import (
 func IsValue(v interface{}) bool {
 	var wg sync.WaitGroup
 	wg.Add(1)
+type Value interface {
+	Name() string
+	Value() js.Value
+}
 
 	defer func() {
 		if recover() != nil {
