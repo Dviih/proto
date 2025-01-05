@@ -34,7 +34,6 @@ type Event struct {
 	running atomic.Bool
 }
 
-var isAttached = errors.New("event is attached")
 
 func (event *Event) Match() bool {
 	matched := true
