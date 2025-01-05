@@ -47,3 +47,44 @@ func (router *Router) Get(route string) (Handler, error) {
 	return nil, Map.KeyNotFound
 }
 
+func (router *Router) match(name string) Handler {
+	var ret Handler
+
+	router.pages.Range(func(s string, handler Handler) bool {
+		route := split(s, '/')
+		ns := split(name, '/')
+
+		if len(ns) > len(route) {
+			return false
+		}
+
+		for i, r := range route {
+			if len(ns) >= i && len(ns[i]) == 0 {
+				ret = nil
+				return false
+			}
+
+			if len(r) == 0 || r[0] == ':' {
+				if len(ns) < i+1 {
+					ret = nil
+				}
+				continue
+			}
+
+			if len(ns) < i {
+				return true
+			}
+
+			if ns[i] == r {
+				ret = handler
+			} else {
+				return true
+			}
+		}
+
+		return true
+	})
+
+	return ret
+}
+
