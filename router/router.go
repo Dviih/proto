@@ -34,3 +34,7 @@ func (router *Router) Add(route string, handler Handler) {
 	router.pages.Store(route, handler)
 }
 
+func (router *Router) Remove(route string) {
+	router.pages.Delete(route)
+}
+
