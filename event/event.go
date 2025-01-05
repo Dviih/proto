@@ -66,10 +66,12 @@ func (event *Event) Unsubscribe(name string) {
 	fn.Release()
 }
 
+func Attached(ctx context.Context, value proto.Value) *Event {
+	event := &Event{
+		ctx:    ctx,
+		value:  value,
+		events: Map.New[string, js.Func](),
 	}
-
-	return event.value
-}
 
 	event.running.Store(true)
 	return event
