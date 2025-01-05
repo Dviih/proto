@@ -106,3 +106,8 @@ func split(s string, b byte) []string {
 	return append(ret, s[j:])
 }
 
+func New() *Router {
+	return &Router{
+		pages: Map.New[string, Handler](),
+	}
+}
