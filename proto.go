@@ -37,13 +37,3 @@ func URL() *url.URL {
 
 	return u
 }
-
-
-	v = js.ValueOf(v)
-	if v != nil {
-		return true
-	}
-
-	wg.Wait()
-	return false
-}
