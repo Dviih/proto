@@ -43,10 +43,7 @@ var (
 }
 
 func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
-	event.events.Store(name, js.FuncOf(fn))
-
-	if event.c != nil {
-		event.c <- true
+	_, err := event.events.LoadOrStore(name, js.FuncOf(fn))
 	}
 
 	if event.attached {
