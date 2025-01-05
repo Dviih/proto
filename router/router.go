@@ -25,3 +25,8 @@ import (
 
 type Handler func(*Page) error
 
+type Router struct {
+	pages    *Map.Map[string, Handler]
+	_default string
+}
+
