@@ -38,17 +38,6 @@ var (
 	Global = Attached(context.Background(), &global{})
 )
 
-func (event *Event) Match() bool {
-	matched := true
-
-	event.conditions.Range(func(condition, expected interface{}) bool {
-		matched = !proto.Document().Call("querySelector", "["+condition.(string)+"="+expected.(string)+"]").IsNull()
-		return matched
-	})
-
-	return matched
-}
-
 func (event *Event) Run() {
 	if !event.attached {
 		event.forceValue()
