@@ -23,3 +23,5 @@ import (
 	"github.com/Dviih/Map"
 )
 
+type Handler func(*Page) error
+
