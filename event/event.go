@@ -40,12 +40,6 @@ var (
 
 }
 
-func (event *Event) Condition(condition, expected string) {
-	if event.attached {
-		panic(isAttached)
-	}
-
-	event.conditions.Store(html.EscapeString(condition), html.EscapeString(expected))
 }
 
 func (event *Event) Subscribe(name string, fn func(js.Value, []js.Value) interface{}) {
