@@ -30,3 +30,7 @@ type Router struct {
 	_default string
 }
 
+func (router *Router) Add(route string, handler Handler) {
+	router.pages.Store(route, handler)
+}
+
