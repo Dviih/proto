@@ -30,8 +30,13 @@ import (
 )
 
 type Page struct {
-	template string
+	ctx      context.Context
 	logger   *slog.Logger
+	template string
+	data     *Map.Map[string, interface{}]
+
+	states *Map.Map[string, interface{}]
+	c      chan string
 
 	Arguments []string
 	Query     map[string][]string
