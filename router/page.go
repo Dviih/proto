@@ -58,3 +58,22 @@ func (page *Page) SetTemplate(template string) {
 	page.template = template
 }
 
+func (page *Page) Set(key string, value interface{}) {
+	page.data.Store(key, value)
+}
+
+func (page *Page) Get(key string) interface{} {
+	v, err := page.data.Load(key)
+	if err != nil {
+		return nil
+	}
+
+	return v
+}
+
+func (page *Page) Join(m map[string]interface{}) {
+	for k, v := range m {
+		page.data.Store(k, v)
+	}
+}
+
