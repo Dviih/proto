@@ -54,3 +54,7 @@ func (page *Page) C() chan string {
 	return page.c
 }
 
+func (page *Page) SetTemplate(template string) {
+	page.template = template
+}
+
