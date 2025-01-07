@@ -37,3 +37,10 @@ func URL() *url.URL {
 
 	return u
 }
+
+func Create[T []byte | string](data T) js.Value {
+	create := GDocument.Call("createElement", "create")
+	create.Set("innerHTML", string(data))
+
+	return create
+}
