@@ -28,7 +28,9 @@ type Page struct {
 	logger   *slog.Logger
 
 	Arguments []string
-	Query     map[string]string
+	Query     map[string][]string
+}
+
 }
 
 func (page *Page) Logger() *slog.Logger {
