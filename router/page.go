@@ -77,3 +77,7 @@ func (page *Page) Join(m map[string]interface{}) {
 	}
 }
 
+func (page *Page) State(name string, v interface{}) {
+	page.states.Store(name, v)
+}
+
