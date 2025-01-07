@@ -81,3 +81,36 @@ func (page *Page) State(name string, v interface{}) {
 	page.states.Store(name, v)
 }
 
+func (page *Page) handle() {
+	for {
+		select {
+		case name := <-page.c:
+			s, err := page.states.Load(name)
+			if err != nil {
+				continue
+			}
+
+			out := reflect.ValueOf(s).MethodByName("Get").Call(nil)
+			if out == nil || len(out) != 1 {
+				continue
+			}
+
+			v := out[0].Interface()
+
+			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
+
+			for i := 0; i < selectors.Length(); i++ {
+				create := proto.Create(fmt.Sprintf("%v", v)).Get("firstChild")
+				firstChild := selectors.Index(i).Get("firstChild")
+
+				if firstChild.IsNull() {
+					selectors.Index(i).Call("appendChild", create)
+					continue
+				}
+
+				selectors.Index(i).Call("replaceChild", firstChild, create)
+			}
+		}
+	}
+}
+
