@@ -131,7 +131,24 @@ type template2 interface {
 	ExecuteTemplate(io.Writer, string, interface{}) error
 }
 
+func New(ctx context.Context, logger *slog.Logger, template interface{}) *Router {
+	switch template.(type) {
+	case template1:
+		template = template.(template1)
+	case template2:
+		template = template.(template2)
+	default:
+		panic("invalid template, either template/html or proto template")
+	}
+
+	if logger == nil {
+		logger = slog.Default()
+	}
+
 	return &Router{
-		pages: Map.New[string, Handler](),
+		ctx:      ctx,
+		logger:   logger.WithGroup("router"),
+		pages:    Map.New[string, Handler](),
+		template: template,
 	}
 }
