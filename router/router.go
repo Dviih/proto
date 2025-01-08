@@ -39,7 +39,7 @@ func (router *Router) Remove(route string) {
 }
 
 func (router *Router) Get(route string) (Handler, error) {
-	handler := router.match(route)
+	handler, _ := router.match(route)
 	if handler != nil {
 		return handler, nil
 	}
@@ -47,27 +47,31 @@ func (router *Router) Get(route string) (Handler, error) {
 	return nil, Map.KeyNotFound
 }
 
-func (router *Router) match(name string) Handler {
+func (router *Router) match(name string) (Handler, []string) {
 	var ret Handler
+	var args []string
 
 	router.pages.Range(func(s string, handler Handler) bool {
 		route := split(s, '/')
 		ns := split(name, '/')
 
 		if len(ns) > len(route) {
-			return false
+			return true
 		}
 
 		for i, r := range route {
-			if len(ns) >= i && len(ns[i]) == 0 {
+			if len(ns) > i && len(ns[i]) == 0 {
 				ret = nil
-				return false
+				return true
 			}
 
 			if len(r) == 0 || r[0] == ':' {
-				if len(ns) < i+1 {
+				if len(ns) <= i {
 					ret = nil
+					return true
 				}
+
+				args = append(args, ns[i])
 				continue
 			}
 
@@ -85,7 +89,9 @@ func (router *Router) match(name string) Handler {
 		return true
 	})
 
-	return ret
+	return ret, args
+}
+
 }
 
 func split(s string, b byte) []string {
