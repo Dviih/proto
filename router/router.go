@@ -122,7 +122,15 @@ func split(s string, b byte) []string {
 	return append(ret, s[j:])
 }
 
-func New() *Router {
+type template1 interface {
+	Execute(string) ([]byte, error)
+	Join(map[string]interface{})
+}
+
+type template2 interface {
+	ExecuteTemplate(io.Writer, string, interface{}) error
+}
+
 	return &Router{
 		pages: Map.New[string, Handler](),
 	}
