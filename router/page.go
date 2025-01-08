@@ -37,6 +37,7 @@ type Page struct {
 
 	states *Map.Map[string, interface{}]
 	c      chan string
+	close  chan bool
 
 	Arguments []string
 	Query     map[string][]string
@@ -84,6 +85,8 @@ func (page *Page) State(name string, v interface{}) {
 func (page *Page) handle() {
 	for {
 		select {
+		case <-page.c:
+			return
 		case name := <-page.c:
 			s, err := page.states.Load(name)
 			if err != nil {
