@@ -20,13 +20,23 @@
 package router
 
 import (
+	"bytes"
+	"context"
 	"github.com/Dviih/Map"
+	"github.com/Dviih/proto"
+	"io"
+	"log/slog"
 )
 
 type Handler func(*Page) error
 
 type Router struct {
+	ctx    context.Context
+	logger *slog.Logger
+
 	pages    *Map.Map[string, Handler]
+	template interface{}
+	current  *Page
 	_default string
 }
 
