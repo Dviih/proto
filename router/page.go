@@ -111,7 +111,7 @@ func (page *Page) handle() {
 					continue
 				}
 
-				selectors.Index(i).Call("replaceChild", firstChild, create)
+				selectors.Index(i).Call("replaceChild", create, firstChild)
 			}
 		}
 	}
