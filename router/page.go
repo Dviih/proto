@@ -85,7 +85,7 @@ func (page *Page) State(name string, v interface{}) {
 func (page *Page) handle() {
 	for {
 		select {
-		case <-page.c:
+		case <-page.close:
 			return
 		case name := <-page.c:
 			s, err := page.states.Load(name)
