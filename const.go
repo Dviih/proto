@@ -27,4 +27,7 @@ var (
 	GDocument   = GGlobal.Get("document")
 	GWindow     = GGlobal.Get("window")
 	GUint8Array = GGlobal.Get("Uint8Array")
+	GObject     = GGlobal.Get("Object")
+	GError      = GGlobal.Get("Error")
+	GArray      = GGlobal.Get("Array")
 )
