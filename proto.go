@@ -38,9 +38,23 @@ func URL() *url.URL {
 	return u
 }
 
-func Create[T []byte | string](data T) js.Value {
+func Create[T []byte | string](data T) []interface{} {
 	create := GDocument.Call("createElement", "create")
 	create.Set("innerHTML", string(data))
 
-	return create
+	var children []interface{}
+
+	tmp := create.Get("children")
+
+	if tmp.Length() == 0 {
+		return []interface{}{create}
+	}
+
+	for i := 0; i < tmp.Length(); i++ {
+		children = append(children, tmp.Index(i))
+	}
+
+	return children
+}
+
 }
