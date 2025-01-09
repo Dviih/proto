@@ -103,15 +103,7 @@ func (page *Page) handle() {
 			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
 
 			for i := 0; i < selectors.Length(); i++ {
-				create := proto.Create(fmt.Sprintf("%v", v)).Get("firstChild")
-				firstChild := selectors.Index(i).Get("firstChild")
-
-				if firstChild.IsNull() {
-					selectors.Index(i).Call("appendChild", create)
-					continue
-				}
-
-				selectors.Index(i).Call("replaceChild", create, firstChild)
+				selectors.Index(i).Call("replaceChildren", proto.Create(fmt.Sprintf("%v", v))...)
 			}
 		}
 	}
