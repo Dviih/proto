@@ -29,6 +29,8 @@ type Value interface {
 	Value() js.Value
 }
 
+type Func func(...interface{}) interface{}
+
 func URL() *url.URL {
 	u, err := url.Parse(GDocument.Get("URL").String())
 	if err != nil {
