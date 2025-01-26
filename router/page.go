@@ -43,16 +43,8 @@ type Page struct {
 	Query     map[string][]string
 }
 
-func (page *Page) Ctx() context.Context {
-	return page.ctx
-}
-
 func (page *Page) Logger() *slog.Logger {
 	return page.logger
-}
-
-func (page *Page) C() chan string {
-	return page.c
 }
 
 func (page *Page) SetTemplate(template string) {
