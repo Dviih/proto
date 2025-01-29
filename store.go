@@ -63,3 +63,28 @@ func (store *MapStore) Delete(key string) {
 	store.Delete(key)
 }
 
+type AnyStore struct {
+	m atomic.Pointer[interface{}]
+}
+
+func (store *AnyStore) Set(_ string, v interface{}) {
+	store.m.Store(&v)
+}
+
+func (store *AnyStore) Get(_ string) interface{} {
+	v := store.m.Load()
+	if v == nil {
+		return nil
+	}
+
+	return *v
+}
+
+func (store *AnyStore) Range(fn func(string, interface{}) bool) {
+	_ = fn("", store.Get(""))
+}
+
+func (store *AnyStore) Delete(_ string) {
+	store.m.Store(nil)
+}
+
