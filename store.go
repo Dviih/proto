@@ -24,3 +24,10 @@ import (
 	"sync/atomic"
 )
 
+type Store interface {
+	Set(string, interface{})
+	Get(string) interface{}
+	Range(func(string, interface{}) bool)
+	Delete(string)
+}
+
