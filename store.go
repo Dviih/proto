@@ -31,3 +31,35 @@ type Store interface {
 	Delete(string)
 }
 
+type MapStore struct {
+	m sync.Map
+}
+
+func (store *MapStore) Set(key string, value interface{}) {
+	store.m.Store(key, value)
+}
+
+func (store *MapStore) Get(key string) interface{} {
+	v, ok := store.m.Load(key)
+	if !ok {
+		return nil
+	}
+
+	return v
+}
+
+func (store *MapStore) Range(fn func(string, interface{}) bool) {
+	store.m.Range(func(key, value any) bool {
+		s, ok := key.(string)
+		if !ok {
+			return false
+		}
+
+		return fn(s, value)
+	})
+}
+
+func (store *MapStore) Delete(key string) {
+	store.Delete(key)
+}
+
