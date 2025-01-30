@@ -88,3 +88,17 @@ func (store *AnyStore) Delete(_ string) {
 	store.m.Store(nil)
 }
 
+func ToStore(v interface{}) Store {
+	switch v := v.(type) {
+	case *MapStore:
+		return v
+	case *AnyStore:
+		return v
+	default:
+		store := &AnyStore{}
+
+		store.Set("", v)
+		return store
+	}
+}
+
