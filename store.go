@@ -104,3 +104,22 @@ func ToStore(v interface{}) Store {
 	}
 }
 
+func MapStoreFrom(v interface{}) *MapStore {
+	store := &MapStore{}
+
+	switch v := v.(type) {
+	case map[string]interface{}:
+		for key, value := range v {
+			store.Set(key, value)
+		}
+	case *MapStore:
+		v.Range(func(key string, value interface{}) bool {
+			store.Set(key, value)
+			return true
+		})
+	default:
+		panic("invalid map from")
+	}
+
+	return store
+}
