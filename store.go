@@ -94,6 +94,8 @@ func ToStore(v interface{}) Store {
 		return v
 	case *AnyStore:
 		return v
+	case map[string]interface{}:
+		return MapStoreFrom(v)
 	default:
 		store := &AnyStore{}
 
