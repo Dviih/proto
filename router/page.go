@@ -35,6 +35,7 @@ type Page struct {
 	logger   *slog.Logger
 	data     *Map.Map[string, interface{}]
 	template atomic.Pointer[string]
+	post     sync.Slice[func()]
 
 	states *Map.Map[string, interface{}]
 	c      chan string
@@ -114,4 +115,6 @@ func Get[T interface{}](page *Page, name string) *state.State[T] {
 	}
 
 	return s
+func (page *Page) Post(fn func()) {
+	page.post.Append(fn)
 }
