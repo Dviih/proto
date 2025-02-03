@@ -27,13 +27,14 @@ import (
 	"github.com/Dviih/proto/state"
 	"log/slog"
 	"reflect"
+	"sync/atomic"
 )
 
 type Page struct {
 	ctx      context.Context
 	logger   *slog.Logger
-	template string
 	data     *Map.Map[string, interface{}]
+	template atomic.Pointer[string]
 
 	states *Map.Map[string, interface{}]
 	c      chan string
@@ -48,7 +49,7 @@ func (page *Page) Logger() *slog.Logger {
 }
 
 func (page *Page) SetTemplate(template string) {
-	page.template = template
+	page.template.Store(&template)
 }
 
 func (page *Page) Set(key string, value interface{}) {
