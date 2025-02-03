@@ -103,18 +103,6 @@ func (page *Page) handle() {
 	}
 }
 
-func Get[T interface{}](page *Page, name string) *state.State[T] {
-	i, err := page.states.Load(name)
-	if err != nil {
-		return nil
-	}
-
-	s, ok := i.(*state.State[T])
-	if !ok {
-		return nil
-	}
-
-	return s
 func (page *Page) Post(fn func()) {
 	page.post.Append(fn)
 }
