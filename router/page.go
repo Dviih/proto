@@ -25,6 +25,7 @@ import (
 	"github.com/Dviih/Map"
 	"github.com/Dviih/proto"
 	"github.com/Dviih/proto/state"
+	"github.com/Dviih/sync"
 	"log/slog"
 	"reflect"
 	"sync/atomic"
@@ -34,6 +35,7 @@ type Page struct {
 	ctx      context.Context
 	logger   *slog.Logger
 	template atomic.Pointer[string]
+	events   sync.Slice[*event.Event]
 	post     sync.Slice[func()]
 
 	states proto.Store
@@ -57,7 +59,11 @@ func (page *Page) State(name string) interface{} {
 	return page.states.Get(name)
 }
 
+func (page *Page) Event(value proto.Value) *event.Event {
+	e := event.New(page.ctx, value)
 
+	page.events.Append(e)
+	return e
 }
 
 func (page *Page) Context() context.Context {
