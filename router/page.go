@@ -43,6 +43,8 @@ type Page struct {
 	close  chan bool
 
 	Store  proto.Store
+	Router *Router
+
 	Arguments []string
 	Query     map[string][]string
 }
@@ -72,6 +74,16 @@ func (page *Page) Context() context.Context {
 
 func (page *Page) State(name string, v interface{}) {
 	page.states.Store(name, v)
+func (page *Page) Go(name string) {
+	if h, _ := page.Router.match(name); h == nil {
+		return
+	}
+
+	history.Default.Push(nil, name, &url.URL{Path: name})
+
+	if err := page.Router.Handler(); err != nil {
+		page.Logger().ErrorContext(page.Context(), "failed to go to other page", slog.Any("error", err))
+	}
 }
 
 func (page *Page) handle() {
