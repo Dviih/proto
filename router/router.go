@@ -20,10 +20,12 @@
 package router
 
 import (
-	"bytes"
 	"context"
-	"github.com/Dviih/Map"
+	"errors"
+	"github.com/Dviih/bin/buffer"
 	"github.com/Dviih/proto"
+	"github.com/Dviih/proto/pkg/js/history"
+	"github.com/Dviih/sync"
 	"io"
 	"log/slog"
 )
@@ -34,7 +36,7 @@ type Router struct {
 	ctx    context.Context
 	logger *slog.Logger
 
-	pages    *Map.Map[string, Handler]
+	pages    *sync.Map[string, Handler]
 	template interface{}
 	current  *Page
 	_default string
