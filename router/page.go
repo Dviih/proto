@@ -36,7 +36,7 @@ type Page struct {
 	template atomic.Pointer[string]
 	post     sync.Slice[func()]
 
-	states *Map.Map[string, interface{}]
+	states proto.Store
 	c      chan string
 	close  chan bool
 
@@ -53,6 +53,8 @@ func (page *Page) SetTemplate(template string) {
 	page.template.Store(&template)
 }
 
+func (page *Page) State(name string) interface{} {
+	return page.states.Get(name)
 }
 
 
