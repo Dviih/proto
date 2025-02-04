@@ -72,8 +72,6 @@ func (page *Page) Context() context.Context {
 	return page.ctx
 }
 
-func (page *Page) State(name string, v interface{}) {
-	page.states.Store(name, v)
 func (page *Page) Go(name string) {
 	if h, _ := page.Router.match(name); h == nil {
 		return
