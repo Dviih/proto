@@ -33,7 +33,6 @@ import (
 type Page struct {
 	ctx      context.Context
 	logger   *slog.Logger
-	data     *Map.Map[string, interface{}]
 	template atomic.Pointer[string]
 	post     sync.Slice[func()]
 
@@ -41,6 +40,7 @@ type Page struct {
 	c      chan string
 	close  chan bool
 
+	Store  proto.Store
 	Arguments []string
 	Query     map[string][]string
 }
@@ -53,23 +53,13 @@ func (page *Page) SetTemplate(template string) {
 	page.template.Store(&template)
 }
 
-func (page *Page) Set(key string, value interface{}) {
-	page.data.Store(key, value)
 }
 
-func (page *Page) Get(key string) interface{} {
-	v, err := page.data.Load(key)
-	if err != nil {
-		return nil
-	}
 
-	return v
 }
 
-func (page *Page) Join(m map[string]interface{}) {
-	for k, v := range m {
-		page.data.Store(k, v)
-	}
+func (page *Page) Context() context.Context {
+	return page.ctx
 }
 
 func (page *Page) State(name string, v interface{}) {
