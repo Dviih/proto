@@ -90,12 +90,12 @@ func (page *Page) handle() {
 		case <-page.close:
 			return
 		case name := <-page.c:
-			s, err := page.states.Load(name)
-			if err != nil {
+			state := page.states.Get(name)
+			if state == nil {
 				continue
 			}
 
-			out := reflect.ValueOf(s).MethodByName("Get").Call(nil)
+			out := reflect.ValueOf(state).MethodByName("Get").Call(nil)
 			if out == nil || len(out) != 1 {
 				continue
 			}
