@@ -42,6 +42,10 @@ type Router struct {
 	_default string
 }
 
+var (
+	RouteNotFound = errors.New("route not found")
+)
+
 func (router *Router) Add(route string, handler Handler) {
 	router.pages.Store(route, handler)
 }
@@ -56,7 +60,7 @@ func (router *Router) Get(route string) (Handler, error) {
 		return handler, nil
 	}
 
-	return nil, Map.KeyNotFound
+	return nil, RouteNotFound
 }
 
 func (router *Router) match(name string) (Handler, []string) {
