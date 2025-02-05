@@ -129,11 +129,12 @@ func split(s string, b byte) []string {
 	return append(ret, s[j:])
 }
 
+// template1 is used by proto's template.
 type template1 interface {
-	Execute(string) ([]byte, error)
-	Join(map[string]interface{})
+	Execute(string, proto.Store) ([]byte, error)
 }
 
+// template2 is used by both text/template and html/template.
 type template2 interface {
 	ExecuteTemplate(io.Writer, string, interface{}) error
 }
