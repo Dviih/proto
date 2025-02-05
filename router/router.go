@@ -71,27 +71,28 @@ func (router *Router) match(name string) (Handler, []string) {
 		route := split(s, '/')
 		ns := split(name, '/')
 
-		if len(ns) > len(route) {
+		if len(ns) != len(route) {
 			return true
 		}
 
 		for i, r := range route {
 			if len(ns) > i && len(ns[i]) == 0 {
 				ret = nil
-				return true
+				return false
 			}
 
 			if len(r) == 0 || r[0] == ':' {
 				if len(ns) <= i {
 					ret = nil
-					return true
+					return false
 				}
 
 				args = append(args, ns[i])
+				ret = handler
 				continue
 			}
 
-			if len(ns) < i {
+			if len(ns) <= i {
 				return true
 			}
 
