@@ -155,7 +155,7 @@ func New(ctx context.Context, logger *slog.Logger, template interface{}) *Router
 	return &Router{
 		ctx:      ctx,
 		logger:   logger.WithGroup("router"),
-		pages:    Map.New[string, Handler](),
+		pages:    &sync.Map[string, Handler]{},
 		template: template,
 	}
 }
