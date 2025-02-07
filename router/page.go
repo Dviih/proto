@@ -27,8 +27,8 @@ import (
 	"github.com/Dviih/proto/pkg/js/history"
 	"github.com/Dviih/sync"
 	"log/slog"
-	"reflect"
 	"net/url"
+	"reflect"
 	"sync/atomic"
 )
 
@@ -96,12 +96,7 @@ func (page *Page) handle() {
 				continue
 			}
 
-			out := reflect.ValueOf(state).MethodByName("Get").Call(nil)
-			if out == nil || len(out) != 1 {
-				continue
-			}
-
-			v := out[0].Interface()
+			v := reflect.ValueOf(state).MethodByName("Get").Call(nil)[0].Interface()
 
 			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
 			children := proto.Create(fmt.Sprintf("%v", v))
