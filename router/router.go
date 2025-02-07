@@ -149,6 +149,10 @@ func (router *Router) Handler() error {
 		}
 	}
 
+	if err := handler(router.current); err != nil {
+		return err
+	}
+
 }
 
 func split(s string, b byte) []string {
