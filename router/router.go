@@ -153,6 +153,34 @@ func (router *Router) Handler() error {
 		return err
 	}
 
+	var data []byte
+
+	switch t := router.template.(type) {
+	case template1:
+		var err error
+
+		data, err = t.Execute(*router.current.template.Load(), router.current.Store)
+		if err != nil {
+			return err
+		}
+	case template2:
+		b := buffer.New()
+
+		if err := t.ExecuteTemplate(b, *router.current.template.Load(), router.current.Store); err != nil {
+			return err
+		}
+
+		data = b.Data()
+	default:
+		panic("invalid template handler")
+	}
+
+	create := proto.Create(data)
+
+	root := proto.GDocument.Call("getElementById", "root")
+	root.Call("replaceChildren", create...)
+
+	go router.current.handle()
 }
 
 func split(s string, b byte) []string {
