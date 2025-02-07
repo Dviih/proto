@@ -166,14 +166,14 @@ func (router *Router) Handler() error {
 	case template1:
 		var err error
 
-		data, err = t.Execute(*router.current.template.Load(), router.current.Store)
+		data, err = t.Execute(*template, router.current.Store)
 		if err != nil {
 			return err
 		}
 	case template2:
 		b := buffer.New()
 
-		if err := t.ExecuteTemplate(b, *router.current.template.Load(), router.current.Store); err != nil {
+		if err := t.ExecuteTemplate(b, *template, router.current.Store); err != nil {
 			return err
 		}
 
