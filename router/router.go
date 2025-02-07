@@ -189,11 +189,14 @@ func (router *Router) Handler() error {
 
 	go router.current.handle()
 
+	router.logger.Debug("render done")
+
 	router.current.post.Range(func(_ int, post func()) bool {
 		go post()
 		return true
 	})
 
+	router.logger.Debug("post done")
 	return nil
 }
 
