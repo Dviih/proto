@@ -117,6 +117,11 @@ func (router *Router) Handler() error {
 		history.Default.Push(nil, router._default, url)
 	}
 
+	handler, args := router.match(url.Path)
+	if handler == nil {
+		return RouteNotFound
+	}
+
 }
 
 func split(s string, b byte) []string {
