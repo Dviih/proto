@@ -233,15 +233,6 @@ type template2 interface {
 }
 
 func New(ctx context.Context, logger *slog.Logger, template interface{}) *Router {
-	switch template.(type) {
-	case template1:
-		template = template.(template1)
-	case template2:
-		template = template.(template2)
-	default:
-		panic("invalid template, either template/html or proto template")
-	}
-
 	if logger == nil {
 		logger = slog.Default()
 	}
