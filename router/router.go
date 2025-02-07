@@ -181,6 +181,15 @@ func (router *Router) Handler() error {
 	root.Call("replaceChildren", create...)
 
 	go router.current.handle()
+
+	router.current.post.Range(func(_ int, post func()) bool {
+		go post()
+		return true
+	})
+
+	return nil
+}
+
 }
 
 func split(s string, b byte) []string {
