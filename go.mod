@@ -7,4 +7,7 @@ require (
 	github.com/Dviih/Map v1.3.0
 )
 
-require github.com/Dviih/Channel v1.5.0 // indirect
+require (
+	github.com/Dviih/Channel v1.5.0 // indirect
+	github.com/Dviih/bin v1.1.2 // indirect
+)

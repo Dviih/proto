@@ -29,6 +29,8 @@ type Value interface {
 	Value() js.Value
 }
 
+type Func func(...interface{}) interface{}
+
 func URL() *url.URL {
 	u, err := url.Parse(GDocument.Get("URL").String())
 	if err != nil {
@@ -36,4 +38,25 @@ func URL() *url.URL {
 	}
 
 	return u
+}
+
+func Create[T []byte | string](data T) []interface{} {
+	create := GDocument.Call("createElement", "create")
+	create.Set("innerHTML", string(data))
+
+	var children []interface{}
+
+	tmp := create.Get("children")
+
+	if tmp.Length() == 0 {
+		return []interface{}{create}
+	}
+
+	for i := 0; i < tmp.Length(); i++ {
+		children = append(children, tmp.Index(i))
+	}
+
+	return children
+}
+
 }
