@@ -190,6 +190,8 @@ func (router *Router) Handler() error {
 	return nil
 }
 
+func (router *Router) SetDefault(_default string) {
+	router._default = _default
 }
 
 func split(s string, b byte) []string {
