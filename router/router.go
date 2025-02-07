@@ -179,7 +179,7 @@ func (router *Router) Handler() error {
 
 		data = b.Data()
 	default:
-		panic("invalid template handler")
+		return InvalidTemplateHandler
 	}
 
 	create := proto.Create(data)
