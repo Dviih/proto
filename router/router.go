@@ -122,6 +122,33 @@ func (router *Router) Handler() error {
 		return RouteNotFound
 	}
 
+	if router.current == nil {
+		router.current = &Page{
+			ctx:       router.ctx,
+			logger:    router.logger.With("route", url.Path),
+			states:    &proto.MapStore{},
+			c:         make(chan string, 512),
+			close:     make(chan bool, 1),
+			Store:     &proto.MapStore{},
+			Router:    router,
+			Arguments: args,
+			Query:     url.Query(),
+		}
+	} else {
+		router.current.close <- true
+		router.current = &Page{
+			ctx:       router.ctx,
+			logger:    router.logger.With("route", url.Path),
+			states:    router.current.states,
+			c:         router.current.c,
+			close:     make(chan bool, 1),
+			Store:     &proto.MapStore{},
+			Router:    router,
+			Arguments: args,
+			Query:     url.Query(),
+		}
+	}
+
 }
 
 func split(s string, b byte) []string {
