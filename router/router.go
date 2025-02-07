@@ -43,7 +43,9 @@ type Router struct {
 }
 
 var (
-	RouteNotFound = errors.New("route not found")
+	RouteNotFound          = errors.New("route not found")
+	InvalidTemplateHandler = errors.New("invalid template handler")
+	TemplateIsNil          = errors.New("template is nil")
 )
 
 func (router *Router) Add(route string, handler Handler) {
