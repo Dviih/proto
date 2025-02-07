@@ -155,6 +155,11 @@ func (router *Router) Handler() error {
 		return err
 	}
 
+	template := router.current.template.Load()
+	if template == nil {
+		return TemplateIsNil
+	}
+
 	var data []byte
 
 	switch t := router.template.(type) {
