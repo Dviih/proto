@@ -109,6 +109,14 @@ func (router *Router) match(name string) (Handler, []string) {
 	return ret, args
 }
 
+func (router *Router) Handler() error {
+	url := proto.URL()
+
+	if url.Path == "/" {
+		url.Path = router._default
+		history.Default.Push(nil, router._default, url)
+	}
+
 }
 
 func split(s string, b byte) []string {
