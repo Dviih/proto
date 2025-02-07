@@ -96,13 +96,11 @@ func (page *Page) handle() {
 				continue
 			}
 
-			v := reflect.ValueOf(state).MethodByName("Get").Call(nil)[0].Interface()
+			v := fmt.Sprintf("%v", reflect.ValueOf(state).MethodByName("Get").Call(nil)[0].Interface())
 
 			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
-			children := proto.Create(fmt.Sprintf("%v", v))
-
 			for i := 0; i < selectors.Length(); i++ {
-				selectors.Index(i).Call("replaceChildren", children...)
+				selectors.Index(i).Set("textContent", v)
 			}
 		}
 	}
