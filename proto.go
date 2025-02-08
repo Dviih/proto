@@ -20,6 +20,7 @@
 package proto
 
 import (
+	"errors"
 	"net/url"
 	"syscall/js"
 )
@@ -38,6 +39,8 @@ var (
 	GArray       = GGlobal.Get("Array")
 	GPromise     = GGlobal.Get("Promise")
 
+	UnsupportedType = errors.New("unsupported type")
+	OutOfRange      = errors.New("number out of range")
 )
 
 func URL() *url.URL {
