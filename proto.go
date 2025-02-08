@@ -31,6 +31,20 @@ type Value interface {
 
 type Func func(...interface{}) interface{}
 
+var (
+	GGlobal = js.Global()
+
+	GDocument    = GGlobal.Get("document")
+	GWindow      = GGlobal.Get("window")
+	GUint8Array  = GGlobal.Get("Uint8Array")
+	GArrayBuffer = GGlobal.Get("ArrayBuffer")
+	GObject      = GGlobal.Get("Object")
+	GError       = GGlobal.Get("Error")
+	GArray       = GGlobal.Get("Array")
+	GPromise     = GGlobal.Get("Promise")
+
+)
+
 func URL() *url.URL {
 	u, err := url.Parse(GDocument.Get("URL").String())
 	if err != nil {
