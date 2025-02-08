@@ -24,11 +24,6 @@ import (
 	"syscall/js"
 )
 
-type Value interface {
-	Name() string
-	Value() js.Value
-}
-
 type Func func(...interface{}) interface{}
 
 var (
