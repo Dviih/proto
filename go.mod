@@ -9,5 +9,6 @@ require (
 
 require (
 	github.com/Dviih/Channel v1.5.0 // indirect
-	github.com/Dviih/bin v1.1.2 // indirect
+	github.com/Dviih/bin v1.1.4 // indirect
+	github.com/Dviih/sync v0.0.0-20250124002824-267f54792339 // indirect
 )
