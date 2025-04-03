@@ -666,6 +666,8 @@ func ToRType(t reflect.Type, value Value) (reflect.Value, error) {
 	case reflect.UnsafePointer:
 		return reflect.ValueOf(nil), UnsupportedType
 	}
+
+	return reflect.ValueOf(nil), UnsupportedType
 }
 
 func ToInt(value Value) (int, error) {
