@@ -38,3 +38,12 @@ func (state *State) Id() string {
 	return state.id
 }
 
+func (state *State) Store(v interface{}) {
+	if state.p != reflect.TypeOf(v) {
+		return
+	}
+
+	state.m.Store(v)
+	state.c <- struct{}{}
+}
+
