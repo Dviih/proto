@@ -28,6 +28,9 @@ type State[T interface{}] interface {
 	C() <-chan struct{}
 }
 
+type Storer interface {
+	StoreState(string, interface{})
+	NewState(reflect.Type, string) Virtual
 }
 
 func (state *State[T]) Get() T {
