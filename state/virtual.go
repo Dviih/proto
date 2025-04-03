@@ -53,3 +53,13 @@ func (virtual *virtual[T]) Load() T {
 	return t.(T)
 }
 
+func (virtual *virtual[T]) C() <-chan struct{} {
+	switch v := virtual.c.(type) {
+	case func() <-chan struct{}:
+		return v()
+	case chan struct{}:
+		return v
+	default:
+		return nil
+	}
+}
