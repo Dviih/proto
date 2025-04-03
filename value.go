@@ -28,3 +28,23 @@ type Value interface {
 	Value() js.Value
 }
 
+type namedValue struct {
+	name  string
+	value js.Value
+}
+
+func (value *namedValue) Name() string {
+	return value.name
+}
+
+func (value *namedValue) Value() js.Value {
+	return value.value
+}
+
+func NewNamedValue(name string, value js.Value) Value {
+	return &namedValue{
+		name:  name,
+		value: value,
+	}
+}
+
