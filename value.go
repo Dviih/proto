@@ -48,3 +48,11 @@ func NewNamedValue(name string, value js.Value) Value {
 	}
 }
 
+// NewEmptyValue is used for iterations.
+func NewEmptyValue(value js.Value) Value {
+	return &namedValue{
+		name:  "",
+		value: value,
+	}
+}
+
