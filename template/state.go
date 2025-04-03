@@ -33,3 +33,7 @@ type State struct {
 	c        chan struct{}
 }
 
+func (state *State) Id() string {
+	return state.id
+}
+
