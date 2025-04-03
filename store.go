@@ -123,3 +123,21 @@ func MapStoreFrom(v interface{}) *MapStore {
 
 	return store
 }
+
+func StoreToData(store Store) interface{} {
+	switch store := store.(type) {
+	case *MapStore:
+		m := make(map[string]interface{})
+
+		store.Range(func(s string, i interface{}) bool {
+			m[s] = i
+			return true
+		})
+		
+		return m
+	case *AnyStore:
+		return store.Get("")
+	default:
+		return store
+	}
+}
