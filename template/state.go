@@ -37,3 +37,17 @@ func (state *State) Id() string {
 	return state.id
 }
 
+func (state *State) Load() interface{} {
+	v := state.current.Load()
+	if v == nil {
+		return ""
+	}
+
+	b := buffer.New()
+	if err := state.template.ExecuteTemplate(b, *v, proto.StoreToData(state.store)); err != nil {
+		return err.Error()
+	}
+
+	return string(b.Data())
+}
+
