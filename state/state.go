@@ -33,13 +33,19 @@ type Storer interface {
 	NewState(reflect.Type, string) Virtual
 }
 
-func (state *State[T]) Get() T {
-	if state.ctx.Err() != nil {
-		var zero T
-		return zero
+func Store[T interface{}](storer Storer, id string) State[T] {
+	state := storer.NewState(reflect.TypeFor[T](), id)
+
+	virtual := &virtual[T]{
+		id:   state.Id,
+		set:  state.Store,
+		load: state.Load,
 	}
 
-	return *state.m.Load()
+	storer.StoreState(id, virtual)
+	return virtual
+}
+
 }
 
 func (state *State[T]) Set(t T) {
