@@ -20,11 +20,17 @@
 package template
 
 import (
+	"github.com/Dviih/proto"
+	"github.com/Dviih/proto/state"
+	"html/template"
 	"io/fs"
 	"reflect"
+	"sync/atomic"
 )
 
 type Template struct {
+	*template.Template
+	states proto.Store
 }
 
 }
