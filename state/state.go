@@ -50,11 +50,11 @@ type Loader interface {
 	LoadState(string) interface{}
 }
 
-func (state *State[T]) Set(t T) {
-	if state.ctx.Err() != nil {
-		return
+func Load[T interface{}](loader Loader, id string) State[T] {
+	state := loader.LoadState(id)
+	if state == nil {
+		return nil
 	}
 
-	state.m.Store(&t)
-	state.c <- state.id
+	return state.(State[T])
 }
