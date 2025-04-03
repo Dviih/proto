@@ -19,3 +19,11 @@
 
 package proto
 
+import (
+)
+
+type Value interface {
+	Name() string
+	Value() js.Value
+}
+
