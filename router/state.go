@@ -51,3 +51,6 @@ func (state *State) Load() interface{} {
 	return state.m.Load()
 }
 
+func (state *State) C() <-chan struct{} {
+	return state.c
+}
