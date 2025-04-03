@@ -73,4 +73,56 @@ func Create[T []byte | string](data T) []interface{} {
 	return children
 }
 
+func ToInterface(value Value) interface{} {
+	switch value.Value().Type() {
+	case js.TypeUndefined, js.TypeNull:
+		return nil
+	case js.TypeBoolean:
+		return value.Value().Bool()
+	case js.TypeNumber:
+		return value.Value().Int()
+	case js.TypeString:
+		return value.Value().String()
+	case js.TypeSymbol:
+		return value.Value().Call("toString").String()
+	case js.TypeObject:
+		if value.Value().InstanceOf(GArray.Value()) {
+			var m []interface{}
+
+			for i := 0; i < value.Value().Length(); i++ {
+				m = append(m, ToInterface(NewEmptyValue(value.Value().Index(i))))
+			}
+
+			return m
+		}
+
+		m := map[string]interface{}{}
+		keys := GObject.Value().Call("keys", value)
+
+		for i := 0; i < keys.Length(); i++ {
+			key := keys.Index(i).String()
+			m[key] = ToInterface(NewEmptyValue(value.Value().Get(key)))
+		}
+
+		return m
+	case js.TypeFunction:
+		fn := reflect.New(reflect.TypeFor[Func]()).Elem()
+
+		fn.Set(reflect.ValueOf(Func(func(v ...interface{}) interface{} {
+			var args []interface{}
+
+			for _, v := range v {
+				args = append(args, ToValue(v))
+			}
+
+			value.Value().Invoke(args...)
+			return nil
+		})))
+
+		return fn.Interface()
+	default:
+		panic("invalid js.Constructor")
+	}
+}
+
 }
