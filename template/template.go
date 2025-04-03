@@ -39,10 +39,22 @@ var funcMap = map[string]interface{}{
 	},
 }
 
+func (template *Template) StoreState(id string, v interface{}) {
+	template.states.Set(id, v)
 }
 
+func (template *Template) NewState(_ reflect.Type, id string) state.Virtual {
+	return &State{
+		id:       id,
+		template: template,
+		current:  atomic.Pointer[string]{},
+		store:    &proto.MapStore{},
+		c:        make(chan struct{}),
+	}
 }
 
+func (template *Template) LoadState(id string) interface{} {
+	return template.states.Get(id)
 }
 
 
