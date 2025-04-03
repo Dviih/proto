@@ -100,22 +100,17 @@ func (page *Page) Go(name string) {
 	}
 }
 
-func (page *Page) handle() {
+func (page *Page) handle(virtual state.Virtual) {
 	for {
 		select {
-		case <-page.close:
+		case <-page.ctx.Done():
 			return
-		case name := <-page.c:
-			state := page.states.Get(name)
-			if state == nil {
-				continue
-			}
+		case <-virtual.C():
+			load := virtual.Load()
 
-			v := fmt.Sprintf("%v", reflect.ValueOf(state).MethodByName("Get").Call(nil)[0].Interface())
-
-			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
+			selectors := proto.GDocument.Value().Call("querySelectorAll", "[state='"+virtual.Id()+"']")
 			for i := 0; i < selectors.Length(); i++ {
-				selectors.Index(i).Set("textContent", v)
+				selectors.Index(i).Set("textContent", load)
 			}
 		}
 	}
