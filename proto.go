@@ -269,6 +269,54 @@ func ToValue(v interface{}) js.Value {
 	return js.Value{}
 }
 
+// BuildJSFunc v is expected to be an array of functions,
+// these functions can return errors and any value in a
+// parameter of a future function.
+func BuildJSFunc(v ...interface{}) js.Func {
+	return js.FuncOf(func(this js.Value, args []js.Value) any {
+		for _, fn := range v {
+			rv := reflect.ValueOf(fn)
+
+			if rv.Kind() != reflect.Func || rv.IsNil() {
+				continue
+			}
+
+			rt := rv.Type()
+
+			delta := 0
+
+			switch rt {
+			case reflect.TypeFor[func(js.Value)]():
+				rv.Call([]reflect.Value{reflect.ValueOf(args[delta])})
+			case reflect.TypeFor[func(js.Value) interface{}]():
+				rv.Call([]reflect.Value{reflect.ValueOf(args[delta])})
+			case reflect.TypeFor[func(js.Value, []js.Value)]():
+				in := []reflect.Value{reflect.ValueOf(this)}
+
+				for _, arg := range args {
+					in = append(in, reflect.ValueOf(arg))
+				}
+
+				rv.Call(in)
+			case reflect.TypeFor[func(js.Value, []js.Value) interface{}]():
+				in := []reflect.Value{reflect.ValueOf(this)}
+
+				for _, arg := range args {
+					in = append(in, reflect.ValueOf(arg))
+				}
+
+				rv.Call(in)
+			default:
+
+			}
+
+			rt.NumIn()
+		}
+
+		return nil
+	})
+}
+
 func checkError(out []reflect.Value) ([]reflect.Value, error) {
 	var (
 		ret []reflect.Value
