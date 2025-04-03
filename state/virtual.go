@@ -22,3 +22,10 @@ package state
 // Virtual state is what your State must implement
 type Virtual State[interface{}]
 
+type virtual[T interface{}] struct {
+	id   func() string
+	set  func(interface{})
+	load func() interface{}
+	c    interface{}
+}
+
