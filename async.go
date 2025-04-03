@@ -24,3 +24,5 @@ import (
 	"time"
 )
 
+var AsyncDeadline = 3 * time.Second
+
