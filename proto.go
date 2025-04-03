@@ -291,6 +291,81 @@ func checkError(out []reflect.Value) ([]reflect.Value, error) {
 	return ret, err
 }
 
+func convert(t reflect.Type, value reflect.Value) reflect.Value {
+	for value.Kind() == reflect.Interface {
+		value = value.Elem()
+	}
+
+	switch t.Kind() {
+	case reflect.Invalid, reflect.Chan, reflect.Func, reflect.Struct:
+		panic("no conversion")
+	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String, reflect.Pointer, reflect.UnsafePointer:
+		if value.CanConvert(t) {
+			return value.Convert(t)
+		}
+
+		return reflect.Value{}
+	case reflect.Array:
+		if value.Type().Len() != t.Len() {
+			// Size must be equal
+			return reflect.Value{}
+		}
+
+		if value.Type().Elem().Kind() == reflect.Interface {
+			array := reflect.New(t).Elem()
+
+			for i := 0; i < value.Len(); i++ {
+				array.Index(i).Set(convert(t.Elem(), value.Index(i)))
+			}
+
+			return array
+		}
+
+		return reflect.Value{}
+	case reflect.Interface:
+		for value.Kind() == reflect.Interface {
+			value.Elem()
+		}
+
+		return value
+	case reflect.Map:
+		kt := t.Key()
+		vt := t.Elem()
+
+		m := reflect.MakeMapWithSize(t, value.Len())
+
+		r := value.MapRange()
+		for r.Next() {
+			rk := convert(kt, r.Key())
+			if !rk.IsValid() {
+				continue
+			}
+
+			rv := convert(vt, r.Value())
+			if !rv.IsValid() {
+				continue
+			}
+
+			m.SetMapIndex(rk, rv)
+		}
+
+		return m
+	case reflect.Slice:
+		if value.Type().Elem().Kind() == reflect.Interface {
+			slice := reflect.MakeSlice(t, value.Len(), value.Cap())
+
+			for i := 0; i < slice.Len(); i++ {
+				slice.Index(i).Set(convert(t.Elem(), value.Index(i)))
+			}
+
+			return slice
+		}
+
+		return reflect.Value{}
+	}
+
+	return value
+}
 
 func constructor(t reflect.Type) js.Func {
 	n := t.NumField()
