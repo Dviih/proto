@@ -33,6 +33,10 @@ type Template struct {
 	states proto.Store
 }
 
+var funcMap = map[string]interface{}{
+	"state": func(s string) string {
+		return "<state state=\"" + s + "\"></state>"
+	},
 }
 
 }
