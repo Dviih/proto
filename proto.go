@@ -28,23 +28,25 @@ import (
 type Func func(...interface{}) interface{}
 
 var (
-	GGlobal = js.Global()
+	GGlobal = NewNamedValue("global", js.Global())
 
-	GDocument    = GGlobal.Get("document")
-	GWindow      = GGlobal.Get("window")
-	GUint8Array  = GGlobal.Get("Uint8Array")
-	GArrayBuffer = GGlobal.Get("ArrayBuffer")
-	GObject      = GGlobal.Get("Object")
-	GError       = GGlobal.Get("Error")
-	GArray       = GGlobal.Get("Array")
-	GPromise     = GGlobal.Get("Promise")
+	GDocument    = NewNamedValue("document", GGlobal.Value().Get("document"))
+	GElement     = NewNamedValue("element", GGlobal.Value().Get("Element"))
+	GWindow      = NewNamedValue("window", GGlobal.Value().Get("window"))
+	GUint8Array  = NewNamedValue("Uint8Array", GGlobal.Value().Get("Uint8Array"))
+	GArrayBuffer = NewNamedValue("ArrayBuffer", GGlobal.Value().Get("ArrayBuffer"))
+	GObject      = NewNamedValue("Object", GGlobal.Value().Get("Object"))
+	GError       = NewNamedValue("Error", GGlobal.Value().Get("Error"))
+	GArray       = NewNamedValue("Array", GGlobal.Value().Get("Array"))
+	GPromise     = NewNamedValue("Promise", GGlobal.Value().Get("Promise"))
+
 
 	UnsupportedType = errors.New("unsupported type")
 	OutOfRange      = errors.New("number out of range")
 )
 
 func URL() *url.URL {
-	u, err := url.Parse(GDocument.Get("URL").String())
+	u, err := url.Parse(GDocument.Value().Get("URL").String())
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +55,7 @@ func URL() *url.URL {
 }
 
 func Create[T []byte | string](data T) []interface{} {
-	create := GDocument.Call("createElement", "create")
+	create := GDocument.Value().Call("createElement", "create")
 	create.Set("innerHTML", string(data))
 
 	var children []interface{}
