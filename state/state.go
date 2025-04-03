@@ -46,6 +46,8 @@ func Store[T interface{}](storer Storer, id string) State[T] {
 	return virtual
 }
 
+type Loader interface {
+	LoadState(string) interface{}
 }
 
 func (state *State[T]) Set(t T) {
