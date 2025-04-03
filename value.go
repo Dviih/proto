@@ -55,4 +55,3 @@ func NewEmptyValue(value js.Value) Value {
 		value: value,
 	}
 }
-
