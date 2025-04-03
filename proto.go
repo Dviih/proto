@@ -125,4 +125,143 @@ func ToInterface(value Value) interface{} {
 	}
 }
 
+func ToValue(v interface{}) js.Value {
+	value := reflect.ValueOf(v)
+
+	for value.Kind() == reflect.Pointer {
+		if value.IsZero() {
+			return js.Undefined()
+		}
+
+		value = value.Elem()
+	}
+
+	switch value.Kind() {
+	case reflect.Invalid:
+		return js.Null()
+	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64, reflect.String, reflect.Uintptr, reflect.UnsafePointer:
+		return js.ValueOf(value.Interface())
+	case reflect.Complex64, reflect.Complex128:
+		c := value.Complex()
+
+		return js.ValueOf(map[string]interface{}{
+			"real": ToValue(real(c)),
+			"imag": ToValue(imag(c)),
+		})
+	case reflect.Array, reflect.Slice:
+		tmp := reflect.MakeSlice(reflect.SliceOf(reflect.TypeFor[interface{}]()), value.Len(), value.Cap())
+
+		for i := 0; i < value.Len(); i++ {
+			tmp.Index(i).Set(value.Index(i))
+		}
+
+		return js.ValueOf(tmp.Interface())
+	case reflect.Chan:
+		// Channel cannot block since JS will make the CPU go to 100%.
+		// The operations for channels must be `TrySend` and `TryRecv`
+		// since they are non-blocking operations.
+		return js.ValueOf(map[string]interface{}{
+			"send": js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+				if len(args) < 1 {
+					switch value.Type().Elem() {
+					case reflect.TypeFor[interface{}](), reflect.TypeFor[struct{}]():
+						value.TrySend(reflect.ValueOf(struct{}{}))
+						return nil
+					default:
+						return GError.Value().Invoke("must send at least one")
+					}
+				}
+
+				for _, arg := range args {
+					value.TrySend(convert(value.Type().Elem(), reflect.ValueOf(ToInterface(NewEmptyValue(arg)))))
+				}
+
+				return nil
+			}),
+			"receive": js.FuncOf(func(js.Value, []js.Value) interface{} {
+				x, ok := value.TryRecv()
+				if !ok {
+					return js.Null()
+				}
+
+				return ToValue(x.Interface())
+			}),
+			"close": js.FuncOf(func(js.Value, []js.Value) interface{} {
+				value.Close()
+				return nil
+			}),
+			"len": js.FuncOf(func(js.Value, []js.Value) interface{} {
+				return value.Len()
+			}),
+			"cap": js.FuncOf(func(js.Value, []js.Value) interface{} {
+				return value.Cap()
+			}),
+			"type": js.FuncOf(func(js.Value, []js.Value) any {
+				return nil
+			}),
+			"p": value.Pointer(),
+		})
+	case reflect.Func:
+		return BuildJSFunc(value).Value
+	case reflect.Interface:
+		if value.Type().Implements(reflect.TypeFor[error]()) {
+			return js.ValueOf(value.Call([]reflect.Value{reflect.ValueOf("Error")})[0].String())
+		}
+
+		panic("proto.ToValue: interface")
+	case reflect.Map:
+		tmp := reflect.MakeMapWithSize(reflect.MapOf(reflect.TypeFor[string](), reflect.TypeFor[interface{}]()), value.Len())
+
+		m := value.MapRange()
+		for m.Next() {
+			tmp.SetMapIndex(reflect.ValueOf(fmt.Sprintf("%v", m.Key().Interface())), m.Value())
+		}
+
+		return js.ValueOf(tmp.Interface())
+	case reflect.Pointer:
+		panic("proto.ToValue: pointer")
+	case reflect.Struct:
+		m := map[string]interface{}{}
+
+		vt := value.Type()
+
+		for i := 0; i < value.NumField(); i++ {
+			ft := vt.Field(i)
+
+			if ft.PkgPath != "" {
+				continue
+			}
+
+			m[ft.Name] = value.Field(i).Interface()
+		}
+
+		for i := 0; i < value.NumMethod(); i++ {
+			mt := vt.Method(i)
+
+			if mt.PkgPath != "" {
+				continue
+			}
+
+			m[mt.Name] = BuildJSFunc(value.Method(i))
+		}
+
+		pv := reflect.NewAt(value.Type(), unsafe.Pointer(value.UnsafeAddr()))
+		pv.Elem().Set(value)
+
+		for i := 0; i < pv.NumMethod(); i++ {
+			pvt := pv.Type().Method(i)
+
+			if pvt.PkgPath != "" {
+				continue
+			}
+
+			m[pvt.Name] = BuildJSFunc(pv.Method(i))
+		}
+
+		return js.ValueOf(m)
+	}
+
+	return js.Value{}
+}
+
 }
