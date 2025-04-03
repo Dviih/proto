@@ -445,4 +445,24 @@ func constructor(t reflect.Type) js.Func {
 	})
 }
 
+
+func ToInt(value Value) (int, error) {
+	switch value.Value().Type() {
+	case js.TypeString:
+		return strconv.Atoi(value.Value().String())
+	case js.TypeNumber:
+		return value.Value().Int(), nil
+	case js.TypeUndefined, js.TypeNull:
+		return 0, nil
+	case js.TypeBoolean:
+		if value.Value().Bool() {
+			return 1, nil
+		}
+
+		return 0, nil
+	default:
+		return 0, UnsupportedType
+	}
+}
+
 }
