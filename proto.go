@@ -445,6 +445,17 @@ func constructor(t reflect.Type) js.Func {
 	})
 }
 
+// ToType converts js.Value to T.
+func ToType[T interface{}](value Value) (T, error) {
+	v, err := ToRType(reflect.TypeFor[T](), value)
+	if err != nil {
+		var zero T
+		return zero, err
+	}
+
+	return v.Interface().(T), nil
+}
+
 func ToRType(t reflect.Type, value Value) (reflect.Value, error) {
 	switch t.Kind() {
 	case reflect.Invalid:
