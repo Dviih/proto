@@ -26,3 +26,13 @@ import (
 
 var AsyncDeadline = 3 * time.Second
 
+func Promise(fn func(resolve, reject func(...interface{}) js.Value) js.Value) js.Value {
+	var h js.Func
+	h = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		defer h.Release()
+		return fn(args[0].Invoke, args[1].Invoke)
+	})
+
+	return GPromise.Value().New(h)
+}
+
