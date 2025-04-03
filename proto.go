@@ -687,4 +687,11 @@ func ToInt(value Value) (int, error) {
 	}
 }
 
+func ToBytes(value Value) []byte {
+	data := make([]byte, value.Value().Length())
+
+	js.CopyBytesToGo(data, value.Value())
+	return data
+}
+
 }
