@@ -19,3 +19,6 @@
 
 package state
 
+// Virtual state is what your State must implement
+type Virtual State[interface{}]
+
