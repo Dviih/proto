@@ -19,17 +19,15 @@
 
 package state
 
-import (
-	"context"
-	"sync/atomic"
-)
+import "reflect"
 
-type State[T interface{}] struct {
-	ctx context.Context
-	c   chan string
+type State[T interface{}] interface {
+	Id() string
+	Store(T)
+	Load() T
+	C() <-chan struct{}
+}
 
-	id string
-	m  atomic.Pointer[T]
 }
 
 func (state *State[T]) Get() T {
