@@ -694,4 +694,9 @@ func ToBytes(value Value) []byte {
 	return data
 }
 
+func ToUint8Array(data []byte) Value {
+	value := GUint8Array.Value().New(len(data))
+
+	js.CopyBytesToJS(value, data)
+	return NewEmptyValue(value)
 }
