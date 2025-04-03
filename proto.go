@@ -21,8 +21,13 @@ package proto
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"net/url"
+	"reflect"
+	"strconv"
 	"syscall/js"
+	"unsafe"
 )
 
 type Func func(...interface{}) interface{}
