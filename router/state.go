@@ -25,3 +25,12 @@ import (
 	"sync/atomic"
 )
 
+type State struct {
+	id  string
+	ctx context.Context
+	c   chan struct{}
+
+	p reflect.Type
+	m atomic.Value
+}
+
