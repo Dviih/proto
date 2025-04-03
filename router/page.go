@@ -56,7 +56,24 @@ func (page *Page) SetTemplate(template string) {
 	page.template.Store(&template)
 }
 
-func (page *Page) State(name string) interface{} {
+func (page *Page) StoreState(id string, v interface{}) {
+	page.states.Set(id, v)
+}
+
+func (page *Page) NewState(p reflect.Type, id string) state.Virtual {
+	s := &State{
+		id:  id,
+		ctx: page.ctx,
+		c:   make(chan struct{}),
+		p:   p,
+		m:   atomic.Value{},
+	}
+
+	go page.handle(s)
+	return s
+}
+
+func (page *Page) LoadState(name string) interface{} {
 	return page.states.Get(name)
 }
 
