@@ -445,6 +445,217 @@ func constructor(t reflect.Type) js.Func {
 	})
 }
 
+func ToRType(t reflect.Type, value Value) (reflect.Value, error) {
+	switch t.Kind() {
+	case reflect.Invalid:
+		return reflect.ValueOf(nil), UnsupportedType
+	case reflect.Bool:
+		return reflect.ValueOf(value.Value().Bool()), nil
+	case reflect.Int:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		return reflect.ValueOf(i), nil
+	case reflect.Int8:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		if i < -128 || i > 127 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(int8(i)), nil
+	case reflect.Int16:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		if i < -32768 || i > 32767 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(int16(i)), nil
+	case reflect.Int32:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		if i < -2147483648 || i > 2147483647 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(int32(i)), nil
+	case reflect.Int64:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		return reflect.ValueOf(int64(i)), nil
+	case reflect.Uint:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		return reflect.ValueOf(uint(i)), nil
+	case reflect.Uint8:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		u := uint(i)
+
+		if u > 255 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(uint8(u)), nil
+	case reflect.Uint16:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		u := uint(i)
+
+		if u > 65535 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(uint16(u)), nil
+	case reflect.Uint32:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		u := uint(i)
+
+		if u > 4294967295 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(uint32(u)), nil
+	case reflect.Uint64:
+		i, err := ToInt(value)
+		if err != nil {
+			return reflect.ValueOf(nil), err
+		}
+
+		return reflect.ValueOf(uint64(i)), nil
+	case reflect.Uintptr:
+		return reflect.ValueOf(nil), UnsupportedType
+	case reflect.Float32:
+		f := value.Value().Float()
+
+		if f > math.MaxFloat32 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(float32(f)), nil
+	case reflect.Float64:
+		return reflect.ValueOf(value.Value().Float()), nil
+	case reflect.Complex64:
+		if value.Value().Type() != js.TypeObject {
+			return reflect.ValueOf(nil), UnsupportedType
+		}
+
+		r := value.Value().Get("real").Float()
+
+		if r > math.MaxFloat32 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		i := value.Value().Get("imag").Float()
+		if i > math.MaxFloat32 {
+			return reflect.ValueOf(nil), OutOfRange
+		}
+
+		return reflect.ValueOf(complex(float32(r), float32(i))), nil
+	case reflect.Complex128:
+		if value.Value().Type() != js.TypeObject {
+			return reflect.ValueOf(nil), UnsupportedType
+		}
+
+		r := value.Value().Get("real").Float()
+		i := value.Value().Get("imag").Float()
+
+		return reflect.ValueOf(complex(r, i)), nil
+	case reflect.Array:
+		array := reflect.New(t)
+
+		for i := 0; i < array.Len(); i++ {
+			v, err := ToRType(t.Elem(), NewEmptyValue(value.Value().Index(i)))
+			if err != nil {
+				return reflect.ValueOf(nil), err
+			}
+
+			array.Index(i).Set(v)
+		}
+
+		return array, nil
+	case reflect.Chan:
+		if value.Value().Type() != js.TypeObject {
+			return reflect.ValueOf(nil), UnsupportedType
+		}
+
+		return reflect.ValueOf(nil), UnsupportedType
+	case reflect.Func:
+		return reflect.ValueOf(nil), errors.New("to be func")
+	case reflect.Interface:
+		return reflect.ValueOf(ToInterface(value)), nil
+	case reflect.Map:
+		m := reflect.MakeMapWithSize(t, value.Value().Length())
+
+		keys := GObject.Value().Call("keys", value)
+		values := GObject.Value().Call("values", value)
+
+		for i := 0; i < keys.Length(); i++ {
+			key, err := ToRType(t.Key(), NewEmptyValue(keys.Index(i)))
+			if err != nil {
+				return reflect.ValueOf(nil), err
+			}
+
+			value, err := ToRType(t.Elem(), NewEmptyValue(values.Index(i)))
+			if err != nil {
+				return reflect.ValueOf(nil), err
+			}
+
+			m.SetMapIndex(key, value)
+		}
+
+		return m, nil
+	case reflect.Pointer:
+		return ToRType(t.Elem(), value)
+	case reflect.Slice:
+		slice := reflect.MakeSlice(t, value.Value().Length(), value.Value().Length())
+
+		for i := 0; i < slice.Len(); i++ {
+			v, err := ToRType(t.Elem(), NewEmptyValue(value.Value().Index(i)))
+			if err != nil {
+				return reflect.ValueOf(nil), err
+			}
+
+			slice.Index(i).Set(v)
+		}
+
+		return slice, nil
+	case reflect.String:
+		return reflect.ValueOf(value.Value().String()), nil
+	case reflect.Struct:
+		return reflect.ValueOf(nil), errors.New("to be struct")
+	case reflect.UnsafePointer:
+		return reflect.ValueOf(nil), UnsupportedType
+	}
+}
 
 func ToInt(value Value) (int, error) {
 	switch value.Value().Type() {
