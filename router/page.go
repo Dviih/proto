@@ -21,10 +21,10 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"github.com/Dviih/proto"
 	"github.com/Dviih/proto/event"
 	"github.com/Dviih/proto/pkg/js/history"
+	"github.com/Dviih/proto/state"
 	"github.com/Dviih/sync"
 	"log/slog"
 	"net/url"
@@ -40,8 +40,6 @@ type Page struct {
 	post     sync.Slice[func()]
 
 	states proto.Store
-	c      chan string
-	close  chan bool
 
 	Store  proto.Store
 	Router *Router
@@ -58,7 +56,24 @@ func (page *Page) SetTemplate(template string) {
 	page.template.Store(&template)
 }
 
-func (page *Page) State(name string) interface{} {
+func (page *Page) StoreState(id string, v interface{}) {
+	page.states.Set(id, v)
+}
+
+func (page *Page) NewState(p reflect.Type, id string) state.Virtual {
+	s := &State{
+		id:  id,
+		ctx: page.ctx,
+		c:   make(chan struct{}),
+		p:   p,
+		m:   atomic.Value{},
+	}
+
+	go page.handle(s)
+	return s
+}
+
+func (page *Page) LoadState(name string) interface{} {
 	return page.states.Get(name)
 }
 
@@ -85,22 +100,17 @@ func (page *Page) Go(name string) {
 	}
 }
 
-func (page *Page) handle() {
+func (page *Page) handle(virtual state.Virtual) {
 	for {
 		select {
-		case <-page.close:
+		case <-page.ctx.Done():
 			return
-		case name := <-page.c:
-			state := page.states.Get(name)
-			if state == nil {
-				continue
-			}
+		case <-virtual.C():
+			load := virtual.Load()
 
-			v := fmt.Sprintf("%v", reflect.ValueOf(state).MethodByName("Get").Call(nil)[0].Interface())
-
-			selectors := proto.GDocument.Call("querySelectorAll", "[state='"+name+"']")
+			selectors := proto.GDocument.Value().Call("querySelectorAll", "[state='"+virtual.Id()+"']")
 			for i := 0; i < selectors.Length(); i++ {
-				selectors.Index(i).Set("textContent", v)
+				selectors.Index(i).Set("textContent", load)
 			}
 		}
 	}

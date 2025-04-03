@@ -19,42 +19,47 @@
 
 package state
 
-import "reflect"
+// Virtual state is what your State must implement
+type Virtual State[interface{}]
 
-type State[T interface{}] interface {
-	Id() string
-	Store(T)
-	Load() T
-	C() <-chan struct{}
+type virtual[T interface{}] struct {
+	id   func() string
+	set  func(interface{})
+	load func() interface{}
+	c    interface{}
 }
 
-type Storer interface {
-	StoreState(string, interface{})
-	NewState(reflect.Type, string) Virtual
+func (virtual *virtual[T]) Id() string {
+	return virtual.id()
 }
 
-func Store[T interface{}](storer Storer, id string) State[T] {
-	state := storer.NewState(reflect.TypeFor[T](), id)
+func (virtual *virtual[T]) Store(t T) {
+	virtual.set(t)
+}
 
-	virtual := &virtual[T]{
-		id:   state.Id,
-		set:  state.Store,
-		load: state.Load,
+func (virtual *virtual[T]) Load() T {
+	t := virtual.load()
+	if t == nil {
+		var t T
+		return t
 	}
 
-	storer.StoreState(id, virtual)
-	return virtual
+	t, ok := t.(T)
+	if !ok {
+		var t T
+		return t
+	}
+
+	return t.(T)
 }
 
-type Loader interface {
-	LoadState(string) interface{}
-}
-
-func Load[T interface{}](loader Loader, id string) State[T] {
-	state := loader.LoadState(id)
-	if state == nil {
+func (virtual *virtual[T]) C() <-chan struct{} {
+	switch v := virtual.c.(type) {
+	case func() <-chan struct{}:
+		return v()
+	case chan struct{}:
+		return v
+	default:
 		return nil
 	}
-
-	return state.(State[T])
 }
