@@ -70,6 +70,9 @@ func ParseFS(fs fs.FS, patterns ...string) (*Template, error) {
 	return t, nil
 }
 
+func New(name string) *Template {
 	return &Template{
+		Template: template.New(name).Funcs(funcMap),
+		states:   &proto.MapStore{},
 	}
 }
