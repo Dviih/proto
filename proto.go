@@ -269,4 +269,26 @@ func ToValue(v interface{}) js.Value {
 	return js.Value{}
 }
 
+func checkError(out []reflect.Value) ([]reflect.Value, error) {
+	var (
+		ret []reflect.Value
+		err error
+	)
+
+	for _, o := range out {
+		if !o.Type().Implements(reflect.TypeFor[error]()) {
+			ret = append(ret, o)
+			continue
+		}
+
+		if o.IsNil() {
+			continue
+		}
+
+		err = errors.Join(err, o.Interface().(error))
+	}
+
+	return ret, err
+}
+
 }
