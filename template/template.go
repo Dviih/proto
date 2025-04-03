@@ -57,12 +57,17 @@ func (template *Template) LoadState(id string) interface{} {
 	return template.states.Get(id)
 }
 
+func ParseFS(fs fs.FS, patterns ...string) (*Template, error) {
+	t := New("")
 
+	var err error
 
+	t.Template, err = t.Template.ParseFS(fs, patterns...)
 	if err != nil {
 		return nil, err
 	}
 
+	return t, nil
 }
 
 	return &Template{
