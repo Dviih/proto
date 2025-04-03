@@ -36,3 +36,26 @@ func Promise(fn func(resolve, reject func(...interface{}) js.Value) js.Value) js
 	return GPromise.Value().New(h)
 }
 
+func Await(promise js.Value) []js.Value {
+	c := make(chan []js.Value, 1)
+
+	var h js.Func
+
+	go func() {
+		h = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			defer h.Release()
+
+			c <- args
+			return nil
+		})
+
+		promise.Call("then", h)
+	}()
+
+	select {
+	case data := <-c:
+		return data
+	case <-time.After(AsyncDeadline):
+		return []js.Value{GError.Value().Invoke("deadline")}
+	}
+}
