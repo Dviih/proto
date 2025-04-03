@@ -20,6 +20,7 @@
 package proto
 
 import (
+	"syscall/js"
 )
 
 type Value interface {
