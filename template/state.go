@@ -25,3 +25,11 @@ import (
 	"sync/atomic"
 )
 
+type State struct {
+	id       string
+	template *Template
+	current  atomic.Pointer[string]
+	store    proto.Store
+	c        chan struct{}
+}
+
