@@ -29,3 +29,7 @@ type virtual[T interface{}] struct {
 	c    interface{}
 }
 
+func (virtual *virtual[T]) Id() string {
+	return virtual.id()
+}
+
