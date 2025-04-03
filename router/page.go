@@ -21,10 +21,10 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"github.com/Dviih/proto"
 	"github.com/Dviih/proto/event"
 	"github.com/Dviih/proto/pkg/js/history"
+	"github.com/Dviih/proto/state"
 	"github.com/Dviih/sync"
 	"log/slog"
 	"net/url"
@@ -40,8 +40,6 @@ type Page struct {
 	post     sync.Slice[func()]
 
 	states proto.Store
-	c      chan string
-	close  chan bool
 
 	Store  proto.Store
 	Router *Router
