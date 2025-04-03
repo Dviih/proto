@@ -37,6 +37,24 @@ func (state *State) Id() string {
 	return state.id
 }
 
+func (state *State) Store(v interface{}) {
+	switch v := v.(type) {
+	case string:
+		state.current.Store(&v)
+	case map[string]interface{}:
+		for k, v := range v {
+			state.store.Set(k, v)
+		}
+	case *proto.MapStore:
+		v.Range(func(k string, v interface{}) bool {
+			state.store.Set(k, v)
+			return true
+		})
+	}
+
+	state.c <- struct{}{}
+}
+
 func (state *State) Load() interface{} {
 	v := state.current.Load()
 	if v == nil {
