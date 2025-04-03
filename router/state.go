@@ -47,3 +47,7 @@ func (state *State) Store(v interface{}) {
 	state.c <- struct{}{}
 }
 
+func (state *State) Load() interface{} {
+	return state.m.Load()
+}
+
