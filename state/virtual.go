@@ -37,3 +37,19 @@ func (virtual *virtual[T]) Store(t T) {
 	virtual.set(t)
 }
 
+func (virtual *virtual[T]) Load() T {
+	t := virtual.load()
+	if t == nil {
+		var t T
+		return t
+	}
+
+	t, ok := t.(T)
+	if !ok {
+		var t T
+		return t
+	}
+
+	return t.(T)
+}
+
