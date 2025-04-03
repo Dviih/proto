@@ -34,3 +34,7 @@ type State struct {
 	m atomic.Value
 }
 
+func (state *State) Id() string {
+	return state.id
+}
+
