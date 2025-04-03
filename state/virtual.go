@@ -33,3 +33,7 @@ func (virtual *virtual[T]) Id() string {
 	return virtual.id()
 }
 
+func (virtual *virtual[T]) Store(t T) {
+	virtual.set(t)
+}
+
