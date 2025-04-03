@@ -291,4 +291,35 @@ func checkError(out []reflect.Value) ([]reflect.Value, error) {
 	return ret, err
 }
 
+
+func constructor(t reflect.Type) js.Func {
+	n := t.NumField()
+	var fields []string
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		if field.PkgPath != "" {
+			n--
+			continue
+		}
+
+		fields = append(fields, field.Name)
+	}
+
+	return js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+		if len(args) != n {
+			return GError.Value().Invoke("invalid args length")
+		}
+
+		ptr := reflect.New(t)
+
+		for i, field := range fields {
+			ptr.Elem().FieldByName(field).Set(reflect.ValueOf(ToInterface(NewEmptyValue(args[i]))))
+		}
+
+		return ToValue(ptr.Interface())
+	})
+}
+
 }
