@@ -89,15 +89,13 @@ func (page *Page) Context() context.Context {
 }
 
 func (page *Page) Go(name string) {
-	if h, _ := page.Router.match(name); h == nil {
-		return
-	}
+	go func() {
+		history.Default.Push(nil, name, &url.URL{Path: name})
 
-	history.Default.Push(nil, name, &url.URL{Path: name})
-
-	if err := page.Router.Handler(); err != nil {
-		page.Logger().ErrorContext(page.Context(), "failed to go to other page", slog.Any("error", err))
-	}
+		if err := page.Router.Handler(); err != nil {
+			page.Logger().ErrorContext(page.Context(), "failed to go to other page", slog.Any("error", err))
+		}
+	}()
 }
 
 func (page *Page) handle(virtual state.Virtual) {

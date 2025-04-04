@@ -25,9 +25,10 @@ import (
 	"github.com/Dviih/bin/buffer"
 	"github.com/Dviih/proto"
 	"github.com/Dviih/proto/pkg/js/history"
+	"github.com/Dviih/proto/template"
 	"github.com/Dviih/sync"
-	"io"
 	"log/slog"
+	"runtime/debug"
 )
 
 type Handler func(*Page) error
@@ -37,7 +38,7 @@ type Router struct {
 	logger *slog.Logger
 
 	pages    *sync.Map[string, Handler]
-	template interface{}
+	template *template.Template
 	current  *Page
 	_default string
 }
@@ -63,6 +64,10 @@ func (router *Router) Get(route string) (Handler, error) {
 	}
 
 	return nil, RouteNotFound
+}
+
+func (router *Router) Template() *template.Template {
+	return router.template
 }
 
 func (router *Router) match(name string) (Handler, []string) {
@@ -146,48 +151,56 @@ func (router *Router) Handler() error {
 		}
 	}
 
-	if err := handler(router.current); err != nil {
+	if err := func() error {
+		defer func() {
+			if err := recover(); err != nil {
+				router.logger.Error("handler panic", slog.Any("pointer", handler), slog.Any("error", err))
+			}
+		}()
+
+		if err := handler(router.current); err != nil {
+			return err
+		}
+
+		return nil
+	}(); err != nil {
 		return err
 	}
 
-	template := router.current.template.Load()
-	if template == nil {
+	currentTemplate := router.current.template.Load()
+	if currentTemplate == nil {
 		return TemplateIsNil
 	}
 
-	var data []byte
+	b := buffer.New()
 
-	switch t := router.template.(type) {
-	case template1:
-		var err error
-
-		data, err = t.Execute(*template, router.current.Store)
-		if err != nil {
-			return err
-		}
-	case template2:
-		b := buffer.New()
-
-		if err := t.ExecuteTemplate(b, *template, router.current.Store); err != nil {
-			return err
-		}
-
-		data = b.Data()
-	default:
-		return InvalidTemplateHandler
+	if err := router.template.ExecuteTemplate(b, *currentTemplate, proto.StoreToData(router.current.Store)); err != nil {
+		return err
 	}
 
-	create := proto.Create(data)
+	create := proto.Create(b.Data())
 
-	root := proto.GDocument.Call("getElementById", "root")
+	root := proto.GDocument.Value().Call("getElementById", "root")
 	root.Call("replaceChildren", create...)
-
-	go router.current.handle()
 
 	router.logger.Debug("render done")
 
-	router.current.post.Range(func(_ int, post func()) bool {
-		go post()
+	router.current.post.Range(func(i int, post func()) bool {
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					router.current.Logger().Error("failed to run post",
+						slog.Int("iteration", i),
+						slog.Any("pointer", post),
+						slog.Any("error", err),
+						slog.String("stack", string(debug.Stack())),
+					)
+				}
+			}()
+
+			post()
+		}()
+
 		return true
 	})
 
@@ -217,17 +230,7 @@ func split(s string, b byte) []string {
 	return append(ret, s[j:])
 }
 
-// template1 is used by proto's template.
-type template1 interface {
-	Execute(string, proto.Store) ([]byte, error)
-}
-
-// template2 is used by both text/template and html/template.
-type template2 interface {
-	ExecuteTemplate(io.Writer, string, interface{}) error
-}
-
-func New(ctx context.Context, logger *slog.Logger, template interface{}) *Router {
+func New(ctx context.Context, logger *slog.Logger, template *template.Template) *Router {
 	if logger == nil {
 		logger = slog.Default()
 	}
