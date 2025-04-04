@@ -151,7 +151,19 @@ func (router *Router) Handler() error {
 		}
 	}
 
-	if err := handler(router.current); err != nil {
+	if err := func() error {
+		defer func() {
+			if err := recover(); err != nil {
+				router.logger.Error("handler panic", slog.Any("pointer", handler), slog.Any("error", err))
+			}
+		}()
+
+		if err := handler(router.current); err != nil {
+			return err
+		}
+
+		return nil
+	}(); err != nil {
 		return err
 	}
 
