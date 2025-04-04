@@ -66,6 +66,10 @@ func (router *Router) Get(route string) (Handler, error) {
 	return nil, RouteNotFound
 }
 
+func (router *Router) Template() *template.Template {
+	return router.template
+}
+
 func (router *Router) match(name string) (Handler, []string) {
 	var ret Handler
 	var args []string
