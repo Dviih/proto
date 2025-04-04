@@ -27,8 +27,8 @@ import (
 	"github.com/Dviih/proto/pkg/js/history"
 	"github.com/Dviih/proto/template"
 	"github.com/Dviih/sync"
-	"io"
 	"log/slog"
+	"runtime/debug"
 )
 
 type Handler func(*Page) error
@@ -185,8 +185,22 @@ func (router *Router) Handler() error {
 
 	router.logger.Debug("render done")
 
-	router.current.post.Range(func(_ int, post func()) bool {
-		go post()
+	router.current.post.Range(func(i int, post func()) bool {
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					router.current.Logger().Error("failed to run post",
+						slog.Int("iteration", i),
+						slog.Any("pointer", post),
+						slog.Any("error", err),
+						slog.String("stack", string(debug.Stack())),
+					)
+				}
+			}()
+
+			post()
+		}()
+
 		return true
 	})
 
